@@ -1,0 +1,1393 @@
+<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The New York Times - 21 世紀百大電影名單與互動指南</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+                        sans: ['Inter', '-apple-system', 'sans-serif'],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 12s linear infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'shutter': 'shutter 0.3s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Editorial look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- React & Babel CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Canvas Confetti for winning recommendations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Editorial styled borders and elements */
+        .nyt-border {
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+        .dark .nyt-border {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .nyt-double-border {
+            border-style: double;
+            border-width: 3px 0;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Smooth scale animation on cards */
+        .movie-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        /* Highlighting target card */
+        .highlight-target {
+            animation: pulse-ring 2.5s infinite;
+        }
+        @keyframes pulse-ring {
+            0%, 100% {
+                box-shadow: 0 0 0 0px rgba(197, 160, 89, 0.8);
+                border-color: rgba(197, 160, 89, 1);
+            }
+            50% {
+                box-shadow: 0 0 0 15px rgba(197, 160, 89, 0);
+                border-color: rgba(197, 160, 89, 0.4);
+            }
+        }
+        /* Movie poster reflection effect */
+        .poster-glow::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
+            transform: skewX(-25deg);
+            transition: 0.75s;
+        }
+        .poster-glow:hover::after {
+            left: 125%;
+        }
+    </style>
+</head>
+<body class="bg-[#fcfbf9] text-[#111111] font-sans antialiased transition-colors duration-300 dark:bg-[#0c0c0e] dark:text-[#f3f4f6]">
+
+    <!-- React Root Entry -->
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        const moviesDatabase = [
+            { rank: 1, title: "寄生上流", originalTitle: "Parasite", director: "奉俊昊 (Bong Joon Ho)", year: 2019, genre: "懸疑驚悚", description: "榮獲坎城金棕櫚與奧斯卡最佳影片，以精妙的空間隱喻與黑色幽默，深刻剖析貧富階級間的寄生與荒謬宿命。", rating: "9.6", duration: "132 min", color: "from-emerald-950 to-neutral-900", img: "1513694203232-719a280e022f", quote: "「錢就像熨斗，能把一切褶皺都熨平。」", stars: "宋康昊, 李善均, 曹汝貞, 崔宇植", awards: "坎城影展金棕櫚獎、奧斯卡最佳影片等4項大獎", review: "《寄生上流》是一部在商業娛樂、類型反轉和深刻階級批判中達到完美平衡的神作。導演奉俊昊巧妙利用樓梯與地下室，將當代社會的財富鴻溝化為驚悚的空間藝術。這不僅是韓國電影的驕傲，更是21世紀全球化語境下，對新自由主義危機最精準的一刀。" },
+            { rank: 2, title: "穆荷蘭大道", originalTitle: "Mulholland Drive", director: "大衛·林區 (David Lynch)", year: 2001, genre: "懸疑驚悚", description: "二十一世紀最偉大的心理驚悚神作，如夢境般的非線性敘事與雙重身分，探討好萊塢背後的黑暗慾望與失落迷茫。", rating: "9.5", duration: "147 min", color: "from-indigo-950 to-neutral-900", img: "1509114397022-ed747cca3f65", quote: "「這不再是一齣戲了。」", stars: "娜歐蜜·華茲, 蘿拉·賀林, 賈斯汀·塞洛克斯", awards: "坎城影展最佳導演獎、奧斯卡最佳導演提名", review: "大衛·林區將好萊塢塑造成一個吞噬夢想與靈魂的巨大黑色漩渦。影片前半部分是充滿希望的尋夢童話，後半部分則是一場心碎、嫉妒與毀滅的殘酷夢醒。影片那非線性的夢境邏輯，使它每一次重看都如同在潛意識的拼圖中摸索，是極致的電影視聽藝術。" },
+            { rank: 3, title: "黑金企業", originalTitle: "There Will Be Blood", director: "保羅·湯瑪斯·安德森 (Paul Thomas Anderson)", year: 2007, genre: "劇情", description: "丹尼爾·戴-路易斯影帝級演技，刻劃二十世紀初美國石油大亨瘋狂、孤寂、與充滿貪婪、宗教和血腥的發家史。", rating: "9.5", duration: "158 min", color: "from-amber-950 to-neutral-900", img: "1518709268805-4e9042af9f23", quote: "「我喝乾了你的奶昔！我把它全喝光了！」", stars: "丹尼爾·戴-路易斯, 保羅·達諾, 凱文·J·歐康納", awards: "奧斯卡最佳男主角、最佳攝影大獎", review: "這是一部關於美國資本主義與原教旨宗教相互撕扯、吞噬的史詩巨作。保羅·湯瑪斯·安德森以冷酷而巨大的黑底油井畫面，搭配約翰尼·格林伍德令人坐立難安的配樂，烘託出丹尼爾·戴-路易斯狂傲至極、與世隔絕的惡魔般演技。結尾在豪宅保齡球館的對決，堪稱影史最震撼的句號。" },
+            { rank: 4, title: "花樣年華", originalTitle: "In the Mood for Love", director: "王家衛 (Wong Kar-wai)", year: 2000, genre: "浪漫愛情", description: "以極致的視覺美學、斑斕旗袍、煙霧與大提琴樂章，細膩捕捉老香港歲月中壓抑而無果的男女繾綣情愫。", rating: "9.4", duration: "98 min", color: "from-red-950 to-neutral-900", img: "1514306191717-452ec28c7814", quote: "「如果多一張船票，你會不會跟我一起走？」", stars: "梁朝偉, 張曼玉", awards: "坎城影展最佳男主角、技術大獎", review: "王家衛將東方的留白、含蓄與壓抑，轉化為一首極致奢華的視覺詩。在窄小的樓梯間、昏黃的路燈和斑駁的雨絲中，梁朝偉與張曼玉用眼神、香菸的煙霧和身體的微小避讓，訴說了影史上最動人也最遺憾的婚外曖昧。那曲《Yumeji's Theme》響起，便是一生難忘的嘆息。" },
+            { rank: 5, title: "月光下的藍色男孩", originalTitle: "Moonlight", director: "貝瑞·傑金斯 (Barry Jenkins)", year: 2016, genre: "劇情", description: "溫柔詩意地描繪一名非裔同志男孩，在暴力、毒品與貧困的邁阿密，尋求自我認同、愛與救贖的成長三部曲。", rating: "9.3", duration: "111 min", color: "from-blue-950 to-neutral-900", img: "1507525428034-b723cf961d3e", quote: "「在月光下，黑人男孩看起來是藍色的。」", stars: "崔凡特·羅德, 安德烈·荷蘭, 馬赫夏拉·阿里", awards: "奧斯卡最佳影片、最佳男配角、最佳改編劇本", review: "這部電影以非凡的溫柔與詩意，打破了人們對邊緣社群、毒品與暴力的刻板偏見。全片分為孩童、少年、青年三階段，每一段都充滿了對肌膚、海水、風聲與內心孤寂的細緻刻畫。導演傑金斯以潮濕溫暖的色調，捕捉了一位非裔同志在堅硬外殼下，脆弱而無比真摯的靈魂深處。" },
+            { rank: 6, title: "險路勿近", originalTitle: "No Country for Old Men", director: "柯恩兄弟 (Joel & Ethan Coen)", year: 2007, genre: "懸疑驚悚", description: "冷酷無比的現代西部驚悚片。透過命運的無常與冷血殺手的獵殺，深刻反思惡的無秩序以及傳統正義的消亡。", rating: "9.3", duration: "122 min", color: "from-stone-900 to-neutral-900", img: "1480009119597-2ac29c0de522", quote: "「這不是一個老年人能待的國家。」", stars: "湯米·李·瓊斯, 哈維爾·巴登, 喬許·布洛林", awards: "奧斯卡最佳影片、最佳導演等4項大獎", review: "《險路勿近》是柯恩兄弟電影生涯的巔峰，改編自考麥克·麥卡錫的同名小說。哈維爾·巴登飾演的冷血殺手，手持氣槍與硬幣決定生死，代表了宇宙中盲目、隨機且不可抗拒的暴力與宿命。全片幾乎沒有背景音樂，乾淨俐落的槍聲和風沙聲，將戈壁荒原中人性的絕望感拉到了極致。" },
+            { rank: 7, title: "王牌冤家", originalTitle: "Eternal Sunshine of the Spotless Mind", director: "米歇爾·龔德里 (Michel Gondry)", year: 2004, genre: "浪漫愛情", description: "將奇幻腦洞與椎心愛情完美結合。在記憶消除的科幻包裝下，寫實地拆解戀愛中的爭執、依戀與無法抗拒的宿命。", rating: "9.2", duration: "108 min", color: "from-sky-950 to-neutral-900", img: "1492446845123-afc97a02049e", quote: "「請讓我留下這一個記憶，就這一個就好。」", stars: "金·凱瑞, 凱特·溫絲蕾, 克斯汀·鄧斯特", awards: "奧斯卡最佳原創劇本大獎", review: "鬼才編劇查理·考夫曼與導演龔德里攜手，創造了這部影史最偉大的奇幻愛情電影。金凱瑞收斂了誇張的喜劇表演，將深情而憂鬱的內向男子演得令人心碎。在逐漸崩塌和消失的腦海記憶場景中，男女主角拼命奔跑，只為了守護他們愛過的痕跡。即便宿命重來，我們依然會選擇再次愛上你。" },
+            { rank: 8, title: "逃出絕命鎮", originalTitle: "Get Out", director: "喬登·皮爾 (Jordan Peele)", year: 2017, genre: "懸疑驚悚", description: "將黑人的現代處境轉化為極致驚悚的諷刺劇，徹底顛覆傳統驚悚類型，掀起極具社會批判力的恐怖片革命。", rating: "9.2", duration: "104 min", color: "from-neutral-950 to-red-950", img: "1534447677763-a0e280d4d9af", quote: "「沉入下陷區吧。」", stars: "丹尼爾·卡盧亞, 艾莉森·威廉絲, 凱薩琳·齊娜", awards: "奧斯卡最佳原創劇本獎、最佳影片提名", review: "喬登·皮爾一鳴驚人的處女作，將潛藏在自由派白人偽善面具下的新型種族主義，轉化為令人毛骨悚然的精神控制與肉體掠奪恐怖片。電影中「下陷區（The Sunken Place）」的視覺意象，精準隱喻了少數族裔在社會體制中失聲、無能為力的麻痺困境。節奏明快，諷刺力道入木三分。" },
+            { rank: 9, title: "神隱少女", originalTitle: "Spirited Away", director: "宮崎駿 (Hayao Miyazaki)", year: 2001, genre: "動畫藝術", description: "吉卜力工作室巔峰之作，女孩千尋在神靈世界的成長冒險，融匯了對物慾膨脹、自然消逝的社會反思與溫柔關懷。", rating: "9.4", duration: "125 min", color: "from-teal-950 to-neutral-900", img: "1478720143983-6f328674b1f5", quote: "「曾經發生過的事情不可能忘記，只不過是想不起罷了。」", stars: "柊瑠美, 入野自由, 夏木麻里", awards: "奧斯卡最佳動畫長片獎、柏林影展金熊獎", review: "這部動畫電影不僅是一場寫給孩子們的璀璨神話，更是一部探討工業資本主義腐蝕、人性純真失落的成人寓言。千尋在神明油屋的洗滌之旅，重新找回了自己被奪去的名字與靈魂。久石讓溫婉悠揚的鋼琴聲伴隨著無臉男靜靜坐在電車上的畫面，已成為全球無數觀眾心靈的終極慰藉。" },
+            { rank: 10, title: "社群網戰", originalTitle: "The Social Network", director: "大衛·芬奇 (David Fincher)", year: 2010, genre: "劇情", description: "節奏明快、台詞犀利，深刻記錄了 Facebook 創辦過程中的友情背叛與孤獨，折射出新世代虛擬人際關係的矛盾。", rating: "9.1", duration: "120 min", color: "from-blue-900 to-neutral-900", img: "1550750827-c91ff7c4424c", quote: "「你沒有拿到五億個朋友，就不可能不樹立幾個敵人。」", stars: "傑西·艾森伯格, 安德魯·加菲爾德, 賈斯汀·提姆布萊克", awards: "奧斯卡最佳改編劇本、最佳剪輯、最佳原創配樂", review: "大衛·芬奇與編劇艾倫·索金，用莎士比亞悲劇般的宏大筆法，解構了矽谷新貴馬克·祖克柏的創業神話。索金機關槍式的台詞，配合芬奇冰冷、高速的剪接和 Trent Reznor 的工業電子配樂，將一場軟體開發過程，拍得比黑幫戰爭還要驚心動魄、令人窒息。這也是探討21世紀人類孤寂感最深刻的寫照。" },
+            
+            { rank: 11, title: "瘋狂麥斯：憤怒道", originalTitle: "Mad Max: Fury Road", director: "喬治·米勒 (George Miller)", year: 2015, genre: "科幻奇幻", description: "二十一世紀動作電影的奇蹟，全程實景飛車特技與末日廢土美學，展現了極致的重金屬朋克與女性主義覺醒。", rating: "9.3", duration: "120 min", img: "1509198397864-d3d56f67e9e2", quote: "「多麼美好的一天！多麼美妙的一天！」", stars: "莎莉·賽隆, 湯姆·哈迪, 尼可拉斯·霍特", awards: "奧斯卡最佳剪輯、最佳美術設計等6項大獎" },
+            { rank: 12, title: "利益區域", originalTitle: "The Zone of Interest", director: "喬納森·葛雷瑟 (Jonathan Glazer)", year: 2023, genre: "劇情", description: "以極致客觀的鏡頭與駭人的環境音效，呈現集中營牆外納粹指揮官家庭幸福的日常，尖銳控訴人性的冷漠與平庸之惡。", rating: "9.0", duration: "105 min", img: "1464817739971-14757377f0f7", quote: "「我們把圍牆邊的玫瑰種得更茂盛一些吧。」", stars: "克里斯蒂安·富里道爾, 桑德拉·惠勒", awards: "奧斯卡最佳國際影片、最佳音效大獎" },
+            { rank: 13, title: "人類之子", originalTitle: "Children of Men", director: "艾方索·柯朗 (Alfonso Cuarón)", year: 2006, genre: "科幻奇幻", description: "在不育症導向世界末日的絕望背景下，透過驚世長鏡頭，捕捉人性的荒涼、移民衝突與唯一的希望曙光。", rating: "9.0", duration: "109 min", img: "1506703719100-7fa251d110f0", quote: "「當最後一個孩子出生時，世界將陷入永恆的沉寂。」", stars: "克里夫·歐文, 茱莉安·摩爾, 麥可·肯恩", awards: "威尼斯影展技術大獎、奧斯卡多項提名" },
+            { rank: 14, title: "惡棍特工", originalTitle: "Inglourious Basterds", director: "昆汀·塔倫提諾 (Quentin Tarantino)", year: 2009, genre: "劇情", description: "昆汀重寫歷史的暴力美學爽片。極度緊繃的酒館台詞對峙、黑色幽默與電影拯救世界的終極浪漫。", rating: "9.1", duration: "153 min", img: "1536440136628-849c177e76a1", quote: "「我有個預感，這將會是我的傑作。」", stars: "布萊德·彼特, 克里斯多夫·華茲, 梅蘭妮·羅蘭", awards: "奧斯卡最佳男配角獎（克里斯多夫·華茲）" },
+            { rank: 15, title: "上帝之城", originalTitle: "City of God", director: "費爾南多·美瑞爾斯 (Fernando Meirelles)", year: 2003, genre: "劇情", description: "如火山爆發般炫目的剪接與音樂，寫實而瘋狂地展現巴西里約熱內盧貧民窟中，毒品與黑幫少年野蠻生長、生死流轉的悲歌。", rating: "9.2", duration: "130 min", img: "1585228510433-cf7a0d1425af", quote: "「如果你逃，他們會抓到你；如果你留，他們會殺了你。」", stars: "亞歷山大·羅德里格斯, 萊安德羅·菲爾米諾", awards: "奧斯卡最佳導演、最佳剪輯等四項提名" },
+            { rank: 16, title: "臥虎藏龍", originalTitle: "Crouching Tiger, Hidden Dragon", director: "李安 (Ang Lee)", year: 2000, genre: "科幻奇幻", description: "將東方「禪意」融入武俠格鬥，描寫青冥劍與人世慾望的糾纏，成功將東方武俠美學和哲思推向國際最高殿堂。", rating: "9.1", duration: "120 min", img: "1519074062522-bc2f132e41c4", quote: "「把手握緊，裡面什麼都沒有；把手放開，你擁有一切。」", stars: "周潤發, 楊紫瓊, 章子怡, 張震", awards: "奧斯卡最佳外語片、最佳攝影、最佳藝術指導、最佳原創音樂" },
+            { rank: 17, title: "斷背山", originalTitle: "Brokeback Mountain", director: "李安 (Ang Lee)", year: 2005, genre: "浪漫愛情", description: "兩位懷俄明州牛仔之間跨越數十年的壓抑愛戀，李安以極其隱忍、內斂且平實的筆觸，描繪出無處安放的永恆悲傷。", rating: "9.1", duration: "134 min", img: "1464821836676-e411117400d4", quote: "「我希望我知道該如何戒掉你。」", stars: "希斯·萊傑, 傑克·葛倫霍, 安·海瑟薇", awards: "奧斯卡最佳導演、最佳改編劇本、最佳原創配樂" },
+            { rank: 18, title: "你他媽的也是", originalTitle: "Y tu mamá también", director: "艾方索·柯朗 (Alfonso Cuarón)", year: 2002, genre: "劇情", description: "兩名少年與一名成熟女子的墨西哥公路之旅，融合了荷爾蒙爆棚的青春躁動、友情裂痕與對墨西哥社會現實的隱喻。", rating: "8.9", duration: "106 min", img: "1507525428034-b723cf961d3e", quote: "「生命就像浪花，轉瞬即逝，所以盡情燃燒吧。」", stars: "蓋爾·賈西亞·貝納, 迪耶哥·路那", awards: "奧斯卡最佳原創劇本提名、威尼斯影展最佳劇本獎" },
+            { rank: 19, title: "索命黃道帶", originalTitle: "Zodiac", director: "大衛·芬奇 (David Fincher)", year: 2007, genre: "懸疑驚悚", description: "聚焦於追捕黃道帶殺手的記者與警探，不落俗套，展現了對真相的偏執追求如何一步步吞噬探尋者的日常生活與精神。", rating: "8.9", duration: "157 min", img: "1506880018680-2c1a20df7c51", quote: "「我必須知道。我不在乎是不是我親手抓住他，我只想看著他的眼睛知道真相。」", stars: "傑克·葛倫霍, 馬克·盧法洛, 小勞勃·道尼", awards: "坎城影展金棕櫚獎提名" },
+            { rank: 20, title: "華爾街之狼", originalTitle: "The Wolf of Wall Street", director: "馬丁·史柯西斯 (Martin Scorsese)", year: 2013, genre: "幽默喜劇", description: "極度瘋狂、荒淫、與充斥毒品拜金的金融帝國史。李奧納多用狂熱的表演將貪婪的醜惡與吸引力發揮到極致。", rating: "9.0", duration: "179 min", img: "1518156677184-c5d1f4045f44", quote: "「賣給我這支筆。」", stars: "李奧納多·狄卡皮歐, 喬納·希爾, 瑪格·羅比", awards: "奧斯卡金像獎5項重要提名" },
+            
+            { rank: 21, title: "天才一族", originalTitle: "The Royal Tenenbaums", director: "魏斯·安德森 (Wes Anderson)", year: 2001, genre: "幽默喜劇", description: "魏斯·安德森對稱美學與復古色調的代表作，刻畫一個由天才兒童組成的古怪家族，如何在疏離、失敗與原諒中尋求和解。", rating: "8.8", duration: "110 min", img: "1501004318641-e39e6a27e24b" },
+            { rank: 22, title: "布達佩斯大飯店", originalTitle: "The Grand Budapest Hotel", director: "魏斯·安德森 (Wes Anderson)", year: 2014, genre: "幽默喜劇", description: "一座粉色飯店在歐洲戰雲籠罩下的傳奇冒險。極致考究的畫面布局與色彩，構築出一段優雅迷人又令人無限唏噓的逝去舊時代。", rating: "9.0", duration: "100 min", img: "1513151233553-9a5325e64ac5" },
+            { rank: 23, title: "年少時代", originalTitle: "Boyhood", director: "理查德·林克萊特 (Richard Linklater)", year: 2014, genre: "劇情", description: "影史最溫柔的實驗：歷時12年拍攝同一位小男孩的成長過程，沒有煽情的戲劇衝突，卻在時光的流轉中令人淚流滿面。", rating: "9.0", duration: "165 min", img: "1505312980649-fb9f85c13886" },
+            { rank: 24, title: "雲端情人", originalTitle: "Her", director: "史派克·瓊斯 (Spike Jonze)", year: 2013, genre: "浪漫愛情", description: "孤獨的都市書寫者與AI作業系統的戀愛物語。在粉色溫暖的未來都市中，探討人性的孤寂本質與親密關係的虛實轉化。", rating: "9.0", duration: "126 min", img: "1526315600562-b1e15b6513a7" },
+            { rank: 25, title: "霓裳魅影", originalTitle: "Phantom Thread", director: "保羅·湯瑪斯·安德森 (Paul Thomas Anderson)", year: 2017, genre: "浪漫愛情", description: "1950年代高定服裝師與靈魂伴侶之間，一場關於控制、依賴、下毒與相互受折磨的優雅又病態的愛之博弈。", rating: "8.8", duration: "130 min", img: "1548021815-f0241b124810" },
+            { rank: 26, title: "墜惡真相", originalTitle: "Anatomy of a Fall", director: "潔絲汀·楚特 (Justine Triet)", year: 2023, genre: "懸疑驚悚", description: "一場墜樓意外引發的法庭攻防，法庭剖析的並非兇手是誰，而是婚姻中那些不可直視的妒忌、不公與千瘡百孔的權力結構。", rating: "8.9", duration: "151 min", img: "1585647347483-223d46241a87" },
+            { rank: 27, title: "蘭花賊", originalTitle: "Adaptation.", director: "史派克·瓊斯 (Spike Jonze)", year: 2002, genre: "幽默喜劇", description: "編劇查理·考夫曼的套中套神作，描寫創作者如何將自己寫進改編劇本中，模糊了虛擬與寫實、藝術與主流市場的界線。", rating: "8.7", duration: "115 min", img: "1507842235661-d820412497b7" },
+            { rank: 28, title: "黑暗騎士", originalTitle: "The Dark Knight", director: "克里斯多福·諾蘭 (Christopher Nolan)", year: 2008, genre: "科幻奇幻", description: "超级英雄電影分水嶺。希斯·萊傑塑造了影史絕響的無政府主義「小丑」，與蝙蝠俠共同探討現代法治與道德的極限黑暗。", rating: "9.3", duration: "152 min", img: "1509198397864-d3d56f67e9e2" },
+            { rank: 29, title: "異星入境", originalTitle: "Arrival", director: "丹尼·維勒納夫 (Denis Villeneuve)", year: 2016, genre: "科幻奇幻", description: "超越常規的外星科幻。以薩丕爾-沃夫假說為核心，當掌握了預知未來的非線性語言，你是否依然會擁抱注定悲傷的命運？", rating: "8.9", duration: "116 min", img: "1451187580241-e7cf37b357e9" },
+            { rank: 30, title: "迷失東京", originalTitle: "Lost in Translation", director: "蘇菲亞·柯波拉 (Sofia Coppola)", year: 2003, genre: "浪漫愛情", description: "霓虹絢爛卻冰冷寂寞的東京，兩個在異鄉、在婚姻、在人生中迷失的男女短暫相遇。那句最後耳語成為永遠的秘密。", rating: "8.8", duration: "1501307560243-7f73111f1eac" },
+            { rank: 31, title: "神鬼無間", originalTitle: "The Departed", director: "馬丁·史柯西斯 (Martin Scorsese)", year: 2006, genre: "懸疑驚悚", description: "改編自港片《無間道》，史柯西斯將其重塑為一齣在波士頓極端暴力、愛爾蘭黑幫陰影下，靈魂撕裂與自我否定之歌。", rating: "8.9", duration: "151 min", img: "1542204172-1cc41f028e3a" },
+            { rank: 32, title: "伴娘我最大", originalTitle: "Bridesmaids", director: "保羅·費格 (Paul Feig)", year: 2011, genre: "幽默喜劇", description: "女性喜劇電影里程碑，既有粗俗爆笑的瘋狂橋段，又真實展現了三十代女性面對生活失敗、同輩競爭與深厚友情的酸甜苦辣。", rating: "8.6", duration: "125 min", img: "1511671782772-52dc479b9451" },
+            { rank: 33, title: "分居風暴", originalTitle: "A Separation", director: "阿斯哈·法哈蒂 (Asghar Farhadi)", year: 2011, genre: "劇情", description: "因移民與照顧父親的爭執開始，環環相扣、毫無尿點的羅生門官司。以平實而扣人心弦的節奏，呈現伊朗階級與信仰的死結。", rating: "9.0", duration: "123 min", img: "1537444035887-12d46214f044" },
+            { rank: 34, title: "瓦力", originalTitle: "WALL-E", director: "安德魯·史丹頓 (Andrew Stanton)", year: 2008, genre: "動畫藝術", description: "皮克斯極致之作。前半段無對白的純愛科幻，搭配後半段對消費主義、環境污染和人類退化的反諷，是跨年齡層的史詩神作。", rating: "9.1", duration: "98 min", img: "1618005182384-a83a8bd57fbe" },
+            { rank: 35, title: "預言者", originalTitle: "A Prophet", director: "賈克·歐迪亞 (Jacques Audiard)", year: 2010, genre: "劇情", description: "一個文盲青年在黑暗、充斥幫派對立的監獄中，憑藉智慧與觀察力一步步成長為黑道梟雄的犯罪長片傑作。", rating: "8.8", duration: "155 min", img: "1506059618417-768f7b7677f5" },
+            { rank: 36, title: "嚴肅的男人", originalTitle: "A Serious Man", director: "柯恩兄弟 (Joel & Ethan Coen)", year: 2009, genre: "幽默喜劇", description: "一部充滿猶太神學隱喻的黑色喜劇，講述一位普通大學教授在家庭、事業與信仰全面崩塌時，面對無解宇宙命運的荒誕哀歌。", rating: "8.7", duration: "106 min", img: "1489533119039-ced3f2000d70" },
+            { rank: 37, title: "以你的名字呼喚我", originalTitle: "Call Me by Your Name", director: "盧卡·格達戈尼諾 (Luca Guadagnino)", year: 2017, genre: "浪漫愛情", description: "義大利盛夏、桃子、鋼琴與少年純粹的戀慕。將初戀的心動、試探、炙熱與隨之而來的椎心哀慟，渲染到極致美學高度。", rating: "8.9", duration: "132 min", img: "1504198453310-9c104e7fec78" },
+            { rank: 38, title: "燃燒女子的畫像", originalTitle: "Portrait of a Lady on Fire", director: "瑟琳·席安瑪 (Céline Sciamma)", year: 2019, genre: "浪漫愛情", description: "女性凝視的極致展現。畫家與待嫁貴族小姐在海島上的短暫愛戀，如古典畫作般唯美，充滿壓抑卻深沉無比的藝術激情。", rating: "9.0", duration: "122 min", img: "1460662110115-ae74ec800a5d" },
+            { rank: 39, title: "淑女鳥", originalTitle: "Lady Bird", director: "葛莉塔·潔薇 (Greta Gerwig)", year: 2017, genre: "劇情", description: "最真實動人的母女成長故事。在渴望離開加州小鎮、探索自我的叛逆期，用充滿靈氣的幽默包裹對家鄉和親情的依戀。", rating: "8.8", duration: "94 min", img: "1490312278101-e0e37aef1200" },
+            { rank: 40, title: "一一", originalTitle: "Yi Yi", director: "楊德昌 (Edward Yang)", year: 2000, genre: "劇情", description: "楊德昌史詩絕唱，透過一個台北中產階級家庭成員的生活，將童年、青年、中年到老年面臨的生存命題，描繪得如一條生命之河。", rating: "9.3", duration: "173 min", img: "1516450360452-9312f5e827c3" },
+
+            { rank: 41, title: "艾蜜莉的異想世界", originalTitle: "Amélie", director: "尚-皮耶·熱內 (Jean-Pierre Jeunet)", year: 2001, genre: "浪漫愛情", description: "一曲獻給孤獨心靈的巴黎暖心童話。色彩斑斕、機智俏皮，看艾蜜莉如何用微小而奇幻的方式溫暖身邊每一個人，並找到真愛。", rating: "8.9", duration: "122 min", img: "1502562086789-92c423d29832" },
+            { rank: 42, title: "大師", originalTitle: "The Master", director: "保羅·湯瑪斯·安德森 (Paul Thomas Anderson)", year: 2012, genre: "劇情", description: "兩位戲骨菲利浦·西摩·霍夫曼與瓦昆·菲尼克斯的對對碰，探討二戰後失落、焦躁的創傷老兵，如何受困於新興宗教洗腦的靈魂之戰。", rating: "8.7", duration: "138 min", img: "1501289548818-4078174f83b8" },
+            { rank: 43, title: "原罪犯", originalTitle: "Oldboy", director: "朴贊郁 (Park Chan-wook)", year: 2003, genre: "懸疑驚悚", description: "南韓復仇三部曲之最。被莫名監禁15年的男人釋放後的血腥追兇，震撼的長廊一鏡到底、禁忌的命運逆轉與希臘悲劇般的震撼結尾。", rating: "9.0", duration: "120 min", img: "1585647347483-223d46241a87" },
+            { rank: 44, title: "從前，有個好萊塢", originalTitle: "Once Upon a Time in Hollywood", director: "昆汀·塔倫提諾 (Quentin Tarantino)", year: 2019, genre: "劇情", description: "昆汀寫給好萊塢黃金時代的絕美情書。用慢步調重塑曼森家族案前的繁華，在火光與與無與倫比的情懷中完成歷史的救贖。", rating: "8.7", duration: "161 min", img: "1513151233553-9a5325e64ac5" },
+            { rank: 45, title: "魔球", originalTitle: "Moneyball", director: "班奈特·米勒 (Bennett Miller)", year: 2011, genre: "劇情", description: "不只是棒球電影，這是一首關於統計學、打破傳統教條、以及在冷酷的世界中堅持信念與擁抱變革的勵志商戰詩歌。", rating: "8.8", duration: "133 min", img: "1508098682722-e99c43a406b2" },
+            { rank: 46, title: "羅馬", originalTitle: "Roma", director: "艾方索·柯朗 (Alfonso Cuarón)", year: 2018, genre: "劇情", description: "黑白寬幅長鏡頭搭建出的私密童年回憶，以墨西哥家庭幫傭的視角，見證個人生活的破碎、階級的隔閡與社會大動盪。", rating: "8.9", duration: "135 min", img: "1471341959040-061c1ec930b7" },
+            { rank: 47, title: "幾近成名", originalTitle: "Almost Famous", director: "卡麥隆·克羅 (Cameron Crowe)", year: 2000, genre: "劇情", description: "15歲少年記者跟隨搖滾樂團巡迴演出的青春狂想曲，滿溢著1970年代的黃金音樂、純真友情、公路浪漫與對搖滾樂無可救藥的愛。", rating: "8.7", duration: "122 min", img: "1511156906253-e51c9535070a" },
+            { rank: 48, title: "竊聽風暴", originalTitle: "The Lives of Others", director: "弗洛里安·亨克爾 (Florian Henckel)", year: 2006, genre: "懸疑驚悚", description: "冷戰時期東德國家安全局特工，在監聽一位反體制作家與其情人的過程中，靈魂逐漸被真誠與藝術喚醒，做出偉大而無聲的反叛。", rating: "9.1", duration: "137 min", img: "1488590528507-24ef24040b2a" },
+            { rank: 49, title: "愛在日落巴黎時", originalTitle: "Before Sunset", director: "理查德·林克萊特 (Richard Linklater)", year: 2004, genre: "浪漫愛情", description: "時隔九年巴黎重逢。全片在一小時多的真實對白中展開，將中年的妥協、未熄的熱情與短暫偷來的浪漫，刻畫到情感的臨界點。", rating: "9.1", duration: "80 min", img: "1502602745895-75a7e0825278" },
+            { rank: 50, title: "天外奇蹟", originalTitle: "Up", director: "彼特·達克特 (Pete Docter)", year: 2009, genre: "動畫藝術", description: "開頭十分鐘關於一對夫婦生老病死的「無聲」剪接已是影史不可磨滅的經典，隨後的飛屋氣球冒險溫馨、幽默又洗滌心靈。", rating: "9.0", duration: "96 min", img: "1537444035887-12d46214f044" },
+            { rank: 51, title: "為奴十二年", originalTitle: "12 Years a Slave", director: "史提夫·麥昆 (Steve McQueen)", year: 2013, genre: "劇情", description: "一位原本自由的非裔美國人被拐賣為奴隸的苦難史，冷靜客觀而殘酷無情地撕開美國歷史最黑暗的創口，直擊靈魂深處。", rating: "8.8", duration: "134 min", img: "1506059618417-768f7b7677f5" },
+            { rank: 52, title: "真寵", originalTitle: "The Favourite", director: "尤格·藍西莫 (Yorgos Lanthimos)", year: 2018, genre: "劇情", description: "荒誕怪異的英國宮廷宮鬥劇。三位演技派女星在權力、同性私慾與利益中，展開令人忍俊不禁又毛骨悚然的荒謬博弈。", rating: "8.7", duration: "119 min", img: "1460662110115-ae74ec800a5d" },
+            { rank: 53, title: "波拉特", originalTitle: "Borat", director: "賴瑞·查爾斯 (Larry Charles)", year: 2006, genre: "幽默喜劇", description: "薩夏·拜倫·柯恩的偽紀錄片神作。用極度低俗、政治不正確且令人坐立難安的街頭實測，扒下美國中產社會虛偽的面具。", rating: "8.5", duration: "84 min", img: "1511671782772-52dc479b9451" },
+            { rank: 54, title: "羊男的迷宮", originalTitle: "Pan's Labyrinth", director: "吉勒摩·戴托羅 (Guillermo del Toro)", year: 2006, genre: "科幻奇幻", description: "將殘酷的佛朗哥法西斯歷史現實與陰暗驚悚的古老奇幻寓言完美融合，寫就一齣充滿悲情色彩、讓人無盡嘆惋的暗黑童話。", rating: "9.0", duration: "118 min", img: "1501289548818-4078174f83b8" },
+            { rank: 55, title: "全面啟動", originalTitle: "Inception", director: "克里斯多福·諾蘭 (Christopher Nolan)", year: 2010, genre: "科幻奇幻", description: "築夢折疊、陀螺旋轉的燒腦神作。將佛洛伊德夢境潛意識轉化為結構嚴密的動作竊盜片，結尾的陀螺成為影史最具討論度的鏡頭。", rating: "9.2", duration: "148 min", img: "1451187580241-e7cf37b357e9" },
+            { rank: 56, title: "戀愛雞尾酒", originalTitle: "Punch-Drunk Love", director: "保羅·湯瑪斯·安德森 (Paul Thomas Anderson)", year: 2002, genre: "浪漫愛情", description: "亞當·山德勒極罕見的文藝神演出，飾演一個患有社恐與狂躁症的邊緣人，在一場意想不到的愛情中得到自我和解。", rating: "8.6", duration: "95 min", img: "1504198453310-9c104e7fec78" },
+            { rank: 57, title: "寵物當家秀", originalTitle: "Best in Show", director: "克里斯多福·蓋斯特 (Christopher Guest)", year: 2000, genre: "幽默喜劇", description: "極具巧思的偽紀錄片式喜劇，透過一場高級狗狗選拔賽，將中產階級主人的神經質、控制狂與各種荒謬心態展露無遺。", rating: "8.4", duration: "90 min", img: "1505312980649-fb9f85c13886" },
+            { rank: 58, title: "原鑽", originalTitle: "Uncut Gems", director: "薩夫迪兄弟 (Josh & Benny Safdie)", year: 2019, genre: "懸疑驚悚", description: "腎上腺素狂飆、幾乎讓人窒息的影史極限。一個賭徒珠寶商在紐約混亂瘋狂的債務與命運豪賭中，一步步滑向死亡深淵。", rating: "8.7", duration: "135 min", img: "1518156677184-c5d1f4045f44" },
+            { rank: 59, title: "顛父人生", originalTitle: "Toni Erdmann", director: "瑪倫·艾德 (Maren Ade)", year: 2016, genre: "幽默喜劇", description: "德國神級社會諷刺喜劇。古怪愛惡作劇的退休父親，試圖透過各種荒境偽裝，喚醒迷失在跨國金融高壓生活中的女兒。", rating: "8.7", duration: "162 min", img: "1516450360452-9312f5e827c3" },
+            { rank: 60, title: "進擊的鼓手", originalTitle: "Whiplash", director: "達米恩·查澤雷 (Damien Chazelle)", year: 2014, genre: "劇情", description: "瘋魔的爵士鼓學生與暴虐魔鬼導師的極端對決，在窒息的快節奏與鮮血淋漓的練習中，探討天才的誕生是否必須跨越道德界線。", rating: "9.0", duration: "107 min", img: "1511156906253-e51c9535070a" },
+            { rank: 61, title: "追殺比爾：第1集", originalTitle: "Kill Bill: Vol. 1", director: "昆汀·塔倫提諾 (Quentin Tarantino)", year: 2003, genre: "懸疑驚悚", description: "昆汀對邵氏武俠、日本劍戟片與義大利西部片的極致大雜燴式致敬。新娘一席黃色勁裝，展開斷肢橫飛的痛快復仇之旅。", rating: "8.9", duration: "111 min", img: "1536440136628-849c177e76a1" },
+            { rank: 62, title: "記憶拼圖", originalTitle: "Memento", director: "克里斯多福·諾蘭 (Christopher Nolan)", year: 2001, genre: "懸疑驚悚", description: "諾蘭一鳴驚人的時間遊戲。利用短期失憶主角的設定，採用正敘與倒敘交錯的雙線結構，親身體驗對主觀記憶與真相的諷刺。", rating: "8.9", duration: "113 min", img: "1506880018680-2c1a20df7c51" },
+            { rank: 63, title: "陽光小美女", originalTitle: "Little Miss Sunshine", director: "強納森·戴頓 (Jonathan Dayton)", year: 2006, genre: "幽默喜劇", description: "一輛破舊黃色休旅車載著一屋子的失敗者與怪人，前去參加兒童選美。在連番爆笑挫折中，定義了什麼是最深厚溫馨的家人羈絆。", rating: "8.8", duration: "101 min", img: "1489533119039-ced3f2000d70" },
+            { rank: 64, title: "控制", originalTitle: "Gone Girl", director: "大衛·芬奇 (David Fincher)", year: 2014, genre: "懸疑驚悚", description: "大衛芬奇對現代婚姻與媒體嗜血本質的暗黑拆解。妻子用一場自導自演的失蹤案，將不忠丈夫逼向崩潰，展現高智商惡女魅力。", rating: "8.9", duration: "149 min", img: "1585647347483-223d46241a87" },
+            { rank: 65, title: "奧本海默", originalTitle: "Oppenheimer", director: "克里斯多福·諾蘭 (Christopher Nolan)", year: 2023, genre: "劇情", description: "諾蘭榮獲奧斯卡多項大獎的宏偉史詩，以三條時間線交織出原子彈之父其非凡的成就、深刻的良心譴責與悲劇性的政壇迫害。", rating: "9.1", duration: "180 min", img: "1464817739971-14757377f0f7" },
+            { rank: 66, title: "驚爆焦點", originalTitle: "Spotlight", director: "湯姆·麥卡錫 (Tom McCarthy)", year: 2015, genre: "劇情", description: "不煽情、不誇大，平實而震撼地呈現波士頓環球報調查小組，如何頂住體制與宗教壓力，揭發天主教會神父性侵兒童的世紀黑幕。", rating: "8.9", duration: "128 min", img: "1488590528507-24ef24040b2a" },
+            { rank: 67, title: "塔爾", originalTitle: "Tár", director: "陶德·菲爾德 (Todd Field)", year: 2022, genre: "劇情", description: "凱特·布蘭琪登峰造極之作。描繪一位在頂尖古典樂界呼風喚雨的女性指揮官，如何因權力傲慢與新型文化審查風暴而墜落神壇。", rating: "8.8", duration: "158 min", img: "1548021815-f0241b124810" },
+            { rank: 68, title: "危機倒數", originalTitle: "The Hurt Locker", director: "凱薩琳·畢格羅 (Kathryn Bigelow)", year: 2008, genre: "劇情", description: "影史首位奧斯卡獲獎女導演作。將鏡頭對準伊拉克戰場上的拆彈小組，呈現戰爭成癮如毒品般吞噬人性靈魂的恐怖張力。", rating: "8.7", duration: "131 min", img: "1480009119597-2ac29c0de522" },
+            { rank: 69, title: "皮囊之下", originalTitle: "Under the Skin", director: "喬納森·葛雷瑟 (Jonathan Glazer)", year: 2013, genre: "科幻奇幻", description: "前衛抽象的哲外科幻。史嘉蕾·喬韓森飾演潛入地球誘捕男性的外星生命，在觀察人類的七情六慾中，逐漸產生困惑與自我意識。", rating: "8.6", duration: "108 min", img: "1550750827-c91ff7c4424c" },
+            { rank: 70, title: "生人勿進", originalTitle: "Let the Right One In", director: "托馬斯·阿爾弗雷德森 (Tomas Alfredson)", year: 2008, genre: "懸疑驚悚", description: "北歐冰天雪地中，受霸凌孤僻少年與神祕吸血鬼女孩之間的縹緲友誼與救贖。風格極其冷冽、詩意、殘酷卻充滿一絲溫存。", rating: "8.8", duration: "115 min", img: "1502602745895-75a7e0825278" },
+
+            { rank: 71, title: "瞞天過海", originalTitle: "Ocean's Eleven", director: "史蒂芬·索德柏 (Steven Soderbergh)", year: 2001, genre: "懸疑驚悚", description: "好萊塢頂級全明星陣容的「高智商竊盜」教科書。優雅、瀟灑且高潮迭起，將賭城劫案轉化為一場精美絕倫的魔術秀。", rating: "8.7", duration: "116 min", img: "1518156677184-c5d1f4045f44" },
+            { rank: 72, title: "卡羅", originalTitle: "Carol", director: "陶德·海恩斯 (Todd Haynes)", year: 2015, genre: "浪漫愛情", description: "1950年代紐約，成熟富有的卡羅與年輕百貨女售貨員在重重世俗禁錮下的靈魂愛戀。攝影如絲綢般古典溫柔，眼神皆是戲。", rating: "8.9", duration: "118 min", img: "1514306191717-452ec28c7814" },
+            { rank: 73, title: "料理鼠王", originalTitle: "Ratatouille", director: "布萊德·博德 (Brad Bird)", year: 2007, genre: "動畫藝術", description: "「人人皆可烹飪」的美好寓言。皮克斯用一隻老鼠的美食夢想，致敬了熱情、創造力，也溫柔嘲諷了傲慢的評論界。", rating: "9.0", duration: "111 min", img: "1502562086789-92c423d29832" },
+            { rank: 74, title: "歡迎光臨奇幻城堡", originalTitle: "The Florida Project", director: "蕭恩·貝克 (Sean Baker)", year: 2017, genre: "劇情", description: "在迪士尼樂園對街的廉價摩鐵中，一群貧困單親家庭的孩子無憂地奔跑。繽紛明亮的粉色濾鏡下，包裹著無比刺骨的社會貧困現實。", rating: "8.8", duration: "111 min", img: "1501004318641-e39e6a27e24b" },
+            { rank: 75, title: "愛．慕", originalTitle: "Amour", director: "麥可·漢內克 (Michael Haneke)", year: 2012, genre: "劇情", description: "漢內克冷酷卻深情的最高傑作。講述一對退休鋼琴家夫婦，在妻子因病失能退化時，丈夫面臨「尊嚴、衰老與愛的終極考驗」。", rating: "8.9", duration: "127 min", img: "1537444035887-12d46214f044" },
+            { rank: 76, title: "霹靂高手", originalTitle: "O Brother, Where Art Thou?", director: "柯恩兄弟 (Joel & Ethan Coen)", year: 2000, genre: "幽默喜劇", description: "將荷馬史詩《奧德賽》搬到1930年代密西西比州的荒謬逃獄喜劇。好聽的鄉村藍草音樂與充滿鄉巴佬式哲學的旅程。", rating: "8.5", duration: "107 min", img: "1511671782772-52dc479b9451" },
+            { rank: 77, title: "媽的多重宇宙", originalTitle: "Everything Everywhere All at Once", director: "關家永 (Daniel Kwan)", year: 2022, genre: "科幻奇幻", description: "席捲奧斯卡的現象級神作。利用天馬行空的多重宇宙與荒誕無稽的笑料，核心探討亞裔家庭的母女代際創傷、虛無主義與愛的包容。", rating: "9.0", duration: "139 min", img: "1519074062522-bc2f132e41c4" },
+            { rank: 78, title: "曬後假日", originalTitle: "Aftersun", director: "夏洛特·威爾斯 (Charlotte Wells)", year: 2022, genre: "劇情", description: "極其私人且後勁強烈的私影像風。長大後的女孩回看11歲時與憂鬱父親去土耳其度假的錄影帶，在時光殘留的縫隙中體會遺憾與愛。", rating: "8.9", duration: "102 min", img: "1504198453310-9c104e7fec78" },
+            { rank: 79, title: "生命樹", originalTitle: "The Tree of Life", director: "泰倫斯·馬利克 (Terrence Malick)", year: 2011, genre: "劇情", description: "極度宏大的影像詩篇。將1950年代德州一個家庭父子關係與宇宙誕生、生命演化的壯麗奇觀相重疊，引人深思神聖與自然。", rating: "8.6", duration: "139 min", img: "1451187580241-e7cf37b357e9" },
+            { rank: 80, title: "玩美女人", originalTitle: "Volver", director: "佩德羅·阿莫多瓦 (Pedro Almodóvar)", year: 2006, genre: "劇情", description: "潘妮洛普·克魯茲主演，阿莫多瓦經典的濃烈色彩，講述西班牙鄉村三代女性面對謀殺、鬼魂、秘密與彼此支撐的生命史。", rating: "8.8", duration: "121 min", img: "1460662110115-ae74ec800a5d" },
+            { rank: 81, title: "黑天鵝", originalTitle: "Black Swan", director: "戴倫·艾洛諾夫斯基 (Darren Aronofsky)", year: 2010, genre: "懸疑驚悚", description: "芭蕾舞伶為追求極致完美的自我毀滅之舞。心魔、幻覺與人格分裂交織，娜塔莉·波曼奉獻了近乎癲狂與血淋淋的影后表演。", rating: "8.9", duration: "108 min", img: "1548021815-f0241b124810" },
+            { rank: 82, title: "殺人一舉", originalTitle: "The Act of Killing", director: "約書亞·奧本海默 (Joshua Oppenheimer)", year: 2012, genre: "劇情", description: "震撼全球的紀錄片，邀請印尼大屠殺的劊子手們在鏡頭前以好萊塢電影形式重新粉飾、模擬當年的殺戮，荒誕、邪惡且發人深省。", rating: "8.9", duration: "115 min", img: "1506059618417-768f7b7677f5" },
+            { rank: 83, title: "醉鄉民謠", originalTitle: "Inside Llewyn Davis", director: "柯恩兄弟 (Joel & Ethan Coen)", year: 2013, genre: "劇情", description: "一首寫給才華橫溢卻生不逢時者的哀歌。落魄民謠歌手抱著一隻橘貓在1960年代冬天的紐約四處碰壁，孤獨憂鬱卻餘音繞梁。", rating: "8.9", duration: "104 min", img: "1511156906253-e51c9535070a" },
+            { rank: 84, title: "驚悚末日", originalTitle: "Melancholia", director: "拉斯·馮·提爾 (Lars von Trier)", year: 2011, genre: "科幻奇幻", description: "將極度嚴重的重度憂鬱症，具象化為一顆即將與地球相撞的憂鬱行星。在無可避免的毀滅面前，憂鬱者展現出異樣的平靜。", rating: "8.7", duration: "135 min", img: "1509114397022-ed747cca3f65" },
+            { rank: 85, title: "傳奇主播網", originalTitle: "Anchorman", director: "亞當·麥凱 (Adam McKay)", year: 2004, genre: "幽默喜劇", description: "美式無厘頭荒唐喜劇巔峰。諷刺1970年代電視新聞界根深蒂固的男權主義，爆笑金句不斷，堪稱流行文化聖經。", rating: "8.3", duration: "94 min", img: "1536440136628-849c177e76a1" },
+            { rank: 86, title: "過去的我們", originalTitle: "Past Lives", director: "席琳·宋 (Celine Song)", year: 2023, genre: "浪漫愛情", description: "探討東方哲學「因緣」。青梅竹馬的兩人在首爾分離、於紐約重逢，在未競遺憾與現實人生中，寫就溫柔而惆悵的成年克制之愛。", rating: "8.7", duration: "105 min", img: "1501307560243-7f73111f1eac" },
+            { rank: 87, title: "魔戒首部曲：魔戒現身", originalTitle: "The Fellowship of the Ring", director: "彼得·傑克森 (Peter Jackson)", year: 2001, genre: "科幻奇幻", description: "奇幻史詩無可動搖的泰山北斗。紐西蘭無與倫比的實景、頂級美術與團結抗惡的宏大情懷，奠定中土世界的永恆信仰。", rating: "9.4", duration: "178 min", img: "1464821836676-e411117400d4" },
+            { rank: 88, title: "拾穗者與我", originalTitle: "The Gleaners and I", director: "安妮·華達 (Agnès Varda)", year: 2000, genre: "動畫藝術", description: "新浪潮祖母華達手持數位DV的散文電影，從撿拾廢棄物的拾荒者，到她自己在時光中對衰老、遺忘與藝術碎片的撿拾，溫慢無比。", rating: "8.9", duration: "82 min", img: "1478720143983-6f328674b1f5" },
+            { rank: 89, title: "星際效應", originalTitle: "Interstellar", director: "克里斯多福·諾蘭 (Christopher Nolan)", year: 2014, genre: "科幻奇幻", description: "硬核廣義相對論科學與父女深情的完美交織。黑洞、五維空間與引力奇點的壯麗探索，證明了「唯有愛與重力能穿越時空」。", rating: "9.2", duration: "169 min", img: "1506703719100-7fa251d110f0" },
+            { rank: 90, title: "紐約哈哈哈", originalTitle: "Frances Ha", director: "諾亞·波拜克 (Noah Baumbach)", year: 2012, genre: "劇情", description: "黑白膠卷下的現代紐約年輕人生活切片。一個沒有固定住所、跳舞天分有限卻樂觀幽默的女孩，在友情與夢想挫折中的野蠻生長。", rating: "8.7", duration: "86 min", img: "1550750827-c91ff7c4424c" },
+            { rank: 91, title: "發現心節奏", originalTitle: "Fish Tank", director: "安德莉亞·阿諾德 (Andrea Arnold)", year: 2009, genre: "劇情", description: "英國底層國宅15歲少女的寫實成長。生活在一地雞毛的家庭，透過街舞與母親神祕新男友的闖入，探索自我的危險悸動與幻滅。", rating: "8.6", duration: "117 min", img: "1505312980649-fb9f85c13886" },
+            { rank: 92, title: "神鬼戰士", originalTitle: "Gladiator", director: "雷利·史考特 (Ridley Scott)", year: 2000, genre: "劇情", description: "羅馬帝國將軍淪為角鬥士、並在競技場向篡位暴君復仇的史詩巨作。悲壯的音樂與金黃麥浪，重建古典史詩的尊嚴。", rating: "9.1", duration: "155 min", img: "1518709268805-4e9042af9f23" },
+            { rank: 93, title: "全面反擊", originalTitle: "Michael Clayton", director: "東尼·吉爾羅伊 (Tony Gilroy)", year: 2007, genre: "懸疑驚悚", description: "冷峻硬朗的法律驚悚片。喬治·克隆尼飾演專門替大財團與律師事務所收拾殘局的「白手套」，在良知與生存博弈中的靈魂救贖。", rating: "8.5", duration: "120 min", img: "1506880018680-2c1a20df7c51" },
+            { rank: 94, title: "關鍵報告", originalTitle: "Minority Report", director: "史蒂芬·史匹柏 (Steven Spielberg)", year: 2002, genre: "科幻奇幻", description: "科幻動作片黃金標準。探討利用三個預言人防止犯罪的未來，當局長自己被預言為殺人犯，展開一場宿命論與自由意志的博弈。", rating: "8.8", duration: "145 min", img: "1509198397864-d3d56f67e9e2" },
+            { rank: 95, title: "世界上最爛的人", originalTitle: "The Worst Person in the World", director: "尤沃金·提爾 (Joachim Trier)", year: 2021, genre: "浪漫愛情", description: "三十歲女性面對職涯、伴侶與自我的多重焦慮與迷惘，在時空停滯奔向新戀人的名場面中，溫柔宣告「不確定性」才是人生的常態。", rating: "8.8", duration: "128 min", img: "1502602745895-75a7e0825278" },
+            { rank: 96, title: "黑豹", originalTitle: "Black Panther", director: "瑞恩·庫格勒 (Ryan Coogler)", year: 2018, genre: "科幻奇幻", description: "漫威電影宇宙最具深度、並首度入圍奧斯卡最佳影片之作。結合非洲未來主義美學，深層探討殖民主義、歷史創傷與孤立主義。", rating: "8.5", duration: "134 min", img: "1471341959040-061c1ec930b7" },
+            { rank: 97, title: "地心引力", originalTitle: "Gravity", director: "艾方索·柯朗 (Alfonso Cuarón)", year: 2013, genre: "科幻奇幻", description: "極致的孤絕與視覺奇蹟。珊卓·布拉克飾演因災難漂流在萬籟俱寂太空的宇航員，透過極致長鏡頭，展現人類求生意志的洗禮。", rating: "8.9", duration: "91 min", img: "1451187580241-e7cf37b357e9" },
+            { rank: 98, title: "灰熊人", originalTitle: "Grizzly Man", director: "韋納·荷索 (Werner Herzog)", year: 2005, genre: "劇情", description: "荷索神級紀錄片，審視一位狂熱的熊類保護者如何在荒野生活13年最終被熊吞噬。探討了大自然冷酷非理性的美與人類的自我執念。", rating: "8.7", duration: "103 min", img: "1480009119597-2ac29c0de522" },
+            { rank: 99, title: "殺人回憶", originalTitle: "Memories of Murder", director: "奉俊昊 (Bong Joon Ho)", year: 2003, genre: "懸疑驚悚", description: "南韓影史最偉大犯罪片，改編自真實連環殺手案。鄉下警察與漢城警官在偏執與瘋狂中追索真相，結尾看向鏡頭的眼神震撼心靈。", rating: "9.2", duration: "132 min", img: "1585647347483-223d46241a87" },
+            { rank: 100, title: "超級壞", originalTitle: "Superbad", director: "葛格·摩托拉 (Greg Mottola)", year: 2007, genre: "幽默喜劇", description: "高中生畢業派對狂歡之旅，既有讓人捧腹大笑的低俗葷段子、著名的McLovin傳奇，又有極其真摯溫暖的死黨友情告別作。", rating: "8.6", duration: "113 min", img: "1511671782772-52dc479b9451" }
+        ];
+
+        function MoviePoster({ imgId, title, rank, size = "normal" }) {
+            const [imageLoaded, setImageLoaded] = useState(false);
+            const [hasError, setHasError] = useState(false);
+            const imgUrl = `https://images.unsplash.com/photo-${imgId || '1536440136628-849c177e76a1'}?auto=format&fit=crop&w=500&q=80`;
+
+            const placeholderGradients = [
+                "from-stone-900 to-neutral-800",
+                "from-amber-950 to-stone-900",
+                "from-emerald-950 to-slate-900",
+                "from-red-950 to-zinc-900",
+                "from-blue-950 to-neutral-900"
+            ];
+            const gradientClass = placeholderGradients[rank % placeholderGradients.length];
+
+            return (
+                <div className={`relative aspect-[2/3] w-full rounded-lg overflow-hidden bg-gradient-to-b ${gradientClass} shadow-md border border-black/20 select-none group/pst`}>
+                    {/* Criterion styled header strip */}
+                    <div className="absolute top-0 inset-x-0 h-6 bg-black/40 backdrop-blur-sm z-10 flex items-center justify-between px-2 text-[8px] tracking-[0.2em] font-bold text-amber-500 uppercase">
+                        <span>Criterion NYT Edition</span>
+                        <span>#{rank}</span>
+                    </div>
+
+                    {/* Image Layer */}
+                    {!hasError && (
+                        <img 
+                            src={imgUrl} 
+                            alt={title}
+                            onLoad={() => setImageLoaded(true)}
+                            onError={() => setHasError(true)}
+                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out group-hover/pst:scale-110 ${imageLoaded ? 'opacity-70 scale-100' : 'opacity-0'}`}
+                            loading="lazy"
+                        />
+                    )}
+
+                    {/* Stylized Film Grain Layer */}
+                    <div className="absolute inset-0 bg-black/15 pointer-events-none mix-blend-overlay"></div>
+
+                    {/* Criterion Gold Rank Badge */}
+                    <div className="absolute top-8 left-3 z-20 bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600 border border-amber-200/50 shadow-lg shadow-black/40 text-black font-black w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-serif">
+                        {rank}
+                    </div>
+
+                    {/* Typography/Title Overlay representing premium film posters */}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent p-3 pt-12 flex flex-col justify-end text-left">
+                        <h4 className="font-serif text-sm sm:text-base md:text-lg font-black text-white leading-tight mb-1 group-hover/pst:text-amber-300 transition-colors line-clamp-2">
+                            {title}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-1">
+                            <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>
+                            <span className="text-[9px] sm:text-[10px] text-amber-400 font-bold tracking-widest uppercase">MASTERPIECE</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [searchTerm, setSearchTerm] = useState("");
+            const [selectedGenre, setSelectedGenre] = useState("All");
+            const [selectedDecade, setSelectedDecade] = useState("All");
+            const [sortBy, setSortBy] = useState("rank-asc");
+            const [viewMode, setViewMode] = useState("poster"); // "poster" or "editorial"
+            const [watchlist, setWatchlist] = useState(() => {
+                const saved = localStorage.getItem("nyt_movies_watchlist_v2");
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [currentCarousel, setCurrentCarousel] = useState(0);
+            const [isDark, setIsDark] = useState(false);
+            
+            // Popups
+            const [showQuiz, setShowQuiz] = useState(false);
+            const [showRandomizer, setShowRandomizer] = useState(false);
+            const [selectedDetailMovie, setSelectedDetailMovie] = useState(null); // Click to open film details
+
+            // Quiz States
+            const [quizStep, setQuizStep] = useState(0);
+            const [quizAnswers, setQuizAnswers] = useState({});
+            const [quizResults, setQuizResults] = useState([]);
+            const [highlightedMovieId, setHighlightedMovieId] = useState(null);
+            
+            // Randomizer state
+            const [randomMovie, setRandomMovie] = useState(null);
+            const [isSpinning, setIsSpinning] = useState(false);
+            const [spinTitle, setSpinTitle] = useState("");
+            
+            // Notification toast
+            const [toast, setToast] = useState({ show: false, message: "" });
+
+            // Initialize theme on mount
+            useEffect(() => {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    setIsDark(true);
+                    document.documentElement.classList.add('dark');
+                }
+            }, []);
+
+            const toggleTheme = () => {
+                setIsDark(!isDark);
+                if (!isDark) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            };
+
+            // Custom Toast Helper
+            const showToast = (message) => {
+                setToast({ show: true, message });
+                setTimeout(() => {
+                    setToast({ show: false, message: "" });
+                }, 3000);
+            };
+
+            // Watchlist Handler
+            const toggleWatchlist = (movie, e) => {
+                if (e) e.stopPropagation(); // Avoid triggering details modal
+                let updated;
+                if (watchlist.some(item => item.rank === movie.rank)) {
+                    updated = watchlist.filter(item => item.rank !== movie.rank);
+                    showToast(`已從私房清單移除：《${movie.title}》`);
+                } else {
+                    updated = [...watchlist, movie];
+                    showToast(`已加入私房清單：《${movie.title}》`);
+                }
+                setWatchlist(updated);
+                localStorage.setItem("nyt_movies_watchlist_v2", JSON.stringify(updated));
+            };
+
+            // Carousel Auto Play for top banner
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    if (!showQuiz && !showRandomizer && !selectedDetailMovie) {
+                        setCurrentCarousel(prev => (prev + 1) % 5);
+                    }
+                }, 6000);
+                return () => clearInterval(timer);
+            }, [showQuiz, showRandomizer, selectedDetailMovie]);
+
+            // Filter & Sort logic
+            const filteredMovies = useMemo(() => {
+                return moviesDatabase.filter(movie => {
+                    const matchesSearch = 
+                        movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        movie.originalTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        movie.director.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        movie.year.toString().includes(searchTerm);
+                    
+                    const matchesGenre = selectedGenre === "All" || movie.genre === selectedGenre;
+                    
+                    let matchesDecade = true;
+                    if (selectedDecade === "2000s") {
+                        matchesDecade = movie.year >= 2000 && movie.year < 2010;
+                    } else if (selectedDecade === "2010s") {
+                        matchesDecade = movie.year >= 2010 && movie.year < 2020;
+                    } else if (selectedDecade === "2020s") {
+                        matchesDecade = movie.year >= 2020;
+                    }
+
+                    return matchesSearch && matchesGenre && matchesDecade;
+                }).sort((a, b) => {
+                    if (sortBy === "rank-asc") return a.rank - b.rank;
+                    if (sortBy === "rank-desc") return b.rank - a.rank;
+                    if (sortBy === "year-desc") return b.year - a.year;
+                    if (sortBy === "year-asc") return a.year - b.year;
+                    if (sortBy === "rating-desc") return parseFloat(b.rating || "0") - parseFloat(a.rating || "0");
+                    return 0;
+                });
+            }, [searchTerm, selectedGenre, selectedDecade, sortBy]);
+
+            const quizQuestions = [
+                {
+                    id: "mood",
+                    question: "今天的心情或看電影的訴求是？",
+                    options: [
+                        { label: "想深入思考、深刻感受生命與人性", value: "thoughtful", icon: "fa-brain" },
+                        { label: "追求腎上腺素飆升，體驗緊繃與懸疑", value: "thrilling", icon: "fa-bolt" },
+                        { label: "需要被愛治癒，或者看場浪漫的故事", value: "romantic", icon: "fa-heart" },
+                        { label: "只想大笑一場、放鬆心情、調劑生活", value: "light", icon: "fa-face-laugh-beam" }
+                    ]
+                },
+                {
+                    id: "pacing",
+                    question: "你偏好什麼樣的電影敘事節奏？",
+                    options: [
+                        { label: "細火慢燉，重視藝術性、留白與鏡頭美感", value: "slow", icon: "fa-hourglass-half" },
+                        { label: "高潮迭起，情節緊湊，一秒都不想分神", value: "fast", icon: "fa-forward" }
+                    ]
+                },
+                {
+                    id: "style",
+                    question: "在視覺上，你更傾向於欣賞？",
+                    options: [
+                        { label: "具有獨特奇幻世界觀、非寫實或者極致特效", value: "fantasy", icon: "fa-wand-magic-sparkles" },
+                        { label: "寫實硬朗、深入探討社會與真實世界的寫照", value: "realistic", icon: "fa-camera" }
+                    ]
+                }
+            ];
+
+            const handleQuizAnswer = (questionId, value) => {
+                const updated = { ...quizAnswers, [questionId]: value };
+                setQuizAnswers(updated);
+                
+                if (quizStep < quizQuestions.length - 1) {
+                    setQuizStep(prev => prev + 1);
+                } else {
+                    calculateQuizResults(updated);
+                    setQuizStep(prev => prev + 1);
+                }
+            };
+
+            const calculateQuizResults = (answers) => {
+                let pool = [...moviesDatabase];
+
+                if (answers.mood === "thrilling") {
+                    pool = pool.filter(m => m.genre === "懸疑驚悚" || m.originalTitle === "瘋狂麥斯：憤怒道" || m.originalTitle === "全面啟動");
+                } else if (answers.mood === "romantic") {
+                    pool = pool.filter(m => m.genre === "浪漫愛情");
+                } else if (answers.mood === "light") {
+                    pool = pool.filter(m => m.genre === "幽默喜劇");
+                } else {
+                    pool = pool.filter(m => m.genre === "劇情" || m.genre === "動畫藝術");
+                }
+
+                if (answers.pacing === "fast") {
+                    pool = pool.filter(m => ["1", "8", "10", "11", "20", "28", "31", "34", "43", "55", "58", "60", "61", "64", "71", "77", "81", "89", "94", "100"].includes(m.rank.toString()) || pool.length < 5);
+                } else {
+                    pool = pool.filter(m => !["11", "20", "31", "58", "61", "100"].includes(m.rank.toString()) || pool.length < 5);
+                }
+
+                if (answers.style === "fantasy") {
+                    const fantasyPool = pool.filter(m => m.genre === "科幻奇幻" || m.genre === "動畫藝術");
+                    if (fantasyPool.length >= 3) pool = fantasyPool;
+                } else {
+                    const realisticPool = pool.filter(m => m.genre === "劇情" || m.genre === "懸疑驚悚" || m.genre === "浪漫愛情");
+                    if (realisticPool.length >= 3) pool = realisticPool;
+                }
+
+                const results = pool.slice(0, 3);
+                setQuizResults(results);
+                
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }, 100);
+            };
+
+            const resetQuiz = () => {
+                setQuizStep(0);
+                setQuizAnswers({});
+                setQuizResults([]);
+            };
+
+            const triggerRandomizer = () => {
+                setIsSpinning(true);
+                setShowRandomizer(true);
+                let duration = 2500;
+                let intervalTime = 60;
+                let elapsed = 0;
+
+                const spinInterval = setInterval(() => {
+                    const tempRandom = moviesDatabase[Math.floor(Math.random() * moviesDatabase.length)];
+                    setSpinTitle(tempRandom.title);
+                    elapsed += intervalTime;
+                    
+                    if (elapsed >= duration) {
+                        clearInterval(spinInterval);
+                        const finalRandom = moviesDatabase[Math.floor(Math.random() * moviesDatabase.length)];
+                        setRandomMovie(finalRandom);
+                        setIsSpinning(false);
+                        
+                        confetti({
+                            particleCount: 120,
+                            spread: 80,
+                            colors: ['#c5a059', '#ffffff', '#121212']
+                        });
+                    }
+                }, intervalTime);
+            };
+
+            const jumpToMovie = (rank) => {
+                const element = document.getElementById(`movie-${rank}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setHighlightedMovieId(rank);
+                    setTimeout(() => {
+                        setHighlightedMovieId(null);
+                    }, 4000);
+                }
+            };
+
+            const stats = useMemo(() => {
+                const directorCounts = {};
+                const decadeCounts = { "2000s": 0, "2010s": 0, "2020s": 0 };
+                const genreCounts = {};
+
+                moviesDatabase.forEach(m => {
+                    const dirName = m.director.split(" (")[0];
+                    directorCounts[dirName] = (directorCounts[dirName] || 0) + 1;
+
+                    if (m.year >= 2000 && m.year < 2010) decadeCounts["2000s"]++;
+                    else if (m.year >= 2010 && m.year < 2020) decadeCounts["2010s"]++;
+                    else if (m.year >= 2020) decadeCounts["2020s"]++;
+
+                    genreCounts[m.genre] = (genreCounts[m.genre] || 0) + 1;
+                });
+
+                const topDirectors = Object.entries(directorCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+
+                return { topDirectors, decadeCounts, genreCounts };
+            }, []);
+
+            return (
+                <div className="min-h-screen flex flex-col selection:bg-amber-100 selection:text-amber-950">
+                    {/* Top sticky navbar */}
+                    <nav className="border-b nyt-border bg-white/95 dark:bg-[#121212]/95 backdrop-blur sticky top-0 z-30 transition-all duration-300">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between h-16 items-center">
+                                <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                                    <span className="font-serif text-2xl lg:text-3xl font-extrabold tracking-tight select-none flex items-center gap-3">
+                                        <span className="bg-[#111111] text-[#fcfbf9] dark:bg-[#f3f4f6] dark:text-[#111111] px-2.5 py-1 rounded font-black text-xl lg:text-2xl font-serif">T</span>
+                                        <span className="hidden sm:inline font-serif font-black italic tracking-tighter">The New York Times</span>
+                                    </span>
+                                </div>
+                                
+                                <div className="flex items-center gap-3">
+                                    <button 
+                                        onClick={() => setShowQuiz(true)} 
+                                        className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-4 py-2 rounded-full text-xs font-bold tracking-wider transition-all shadow-sm active:scale-95"
+                                    >
+                                        <i className="fa-solid fa-wand-magic-sparkles"></i> 
+                                        <span className="hidden md:inline">專屬電影測驗</span>
+                                        <span className="md:hidden">找電影</span>
+                                    </button>
+
+                                    <button 
+                                        onClick={triggerRandomizer} 
+                                        className="flex items-center gap-2 bg-neutral-900 text-white dark:bg-[#f3f4f6] dark:text-[#111111] hover:opacity-90 px-4 py-2 rounded-full text-xs font-bold tracking-wider transition-all shadow-sm active:scale-95"
+                                    >
+                                        <i className="fa-solid fa-shuffle"></i> 
+                                        <span>推薦哪部？</span>
+                                    </button>
+
+                                    <button 
+                                        onClick={toggleTheme} 
+                                        className="p-2 rounded-full hover:bg-neutral-150 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-all"
+                                        aria-label="Toggle theme"
+                                    >
+                                        {isDark ? <i className="fa-solid fa-sun text-lg"></i> : <i className="fa-solid fa-moon text-lg"></i>}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Header Banner - Editorial style */}
+                    <header className="border-b nyt-border bg-white dark:bg-[#121212] py-10 lg:py-14 px-4 transition-colors duration-300 text-center">
+                        <div className="max-w-4xl mx-auto">
+                            <p className="text-[11px] tracking-[0.3em] uppercase font-black text-amber-600 dark:text-amber-400 mb-3">NYT Special Editorial Feature</p>
+                            <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 leading-tight">
+                                21 世紀百大電影名單
+                            </h1>
+                            <p className="font-serif italic text-lg sm:text-xl text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto leading-relaxed mt-4">
+                                「不只是光影的紀錄，更是形塑當代思維與美學格局的 100 部傑出不朽之作。點擊下方電影可查閱深入評論與海報。」
+                            </p>
+                            <div className="flex justify-center items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400 font-bold tracking-widest uppercase my-5">
+                                <span>Compiled by Critics</span>
+                                <span className="w-1.5 h-1.5 bg-neutral-400 rounded-full"></span>
+                                <span>Interactive Film Guide</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Top 5 Hall of Fame Feature */}
+                    <section className="bg-neutral-950 text-white py-12 px-4 relative overflow-hidden">
+                        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                        <div className="max-w-7xl mx-auto relative z-10">
+                            <h2 className="font-serif text-lg sm:text-2xl text-amber-400 font-bold tracking-wider mb-8 text-center flex items-center justify-center gap-3">
+                                <i className="fa-solid fa-crown text-amber-400"></i> THE HALL OF FAME · 前五大殿堂神作
+                            </h2>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                                {/* Left Featured Carousel Card */}
+                                <div className={`lg:col-span-7 rounded-2xl bg-gradient-to-br ${moviesDatabase[currentCarousel].color} p-6 sm:p-10 min-h-[420px] flex flex-col justify-between border border-white/10 transition-all duration-1000 transform hover:scale-[1.01]`}>
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <span className="bg-amber-400 text-black font-black text-xs px-3 py-1 rounded-full">NO.{moviesDatabase[currentCarousel].rank}</span>
+                                            <span className="text-xs uppercase tracking-widest text-neutral-300 font-bold">{moviesDatabase[currentCarousel].genre}</span>
+                                        </div>
+                                        <h3 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-black mb-1">{moviesDatabase[currentCarousel].title}</h3>
+                                        <p className="text-sm font-sans text-neutral-400 italic mb-5">{moviesDatabase[currentCarousel].originalTitle}</p>
+                                        <p className="text-sm lg:text-base text-neutral-200 leading-relaxed max-w-xl font-serif">
+                                            {moviesDatabase[currentCarousel].description}
+                                        </p>
+                                    </div>
+
+                                    <div className="border-t border-white/10 pt-6 mt-6 flex flex-wrap justify-between items-center gap-4">
+                                        <div className="text-xs text-neutral-400">
+                                            <p><span className="font-semibold text-neutral-200">導演:</span> {moviesDatabase[currentCarousel].director}</p>
+                                            <p className="mt-1"><span className="font-semibold text-neutral-200">年份:</span> {moviesDatabase[currentCarousel].year}年</p>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button 
+                                                onClick={(e) => toggleWatchlist(moviesDatabase[currentCarousel], e)} 
+                                                className="bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all text-xs flex items-center gap-2 border border-white/5 active:scale-95"
+                                            >
+                                                <i className={`fa-heart ${watchlist.some(w => w.rank === moviesDatabase[currentCarousel].rank) ? 'fa-solid text-red-500' : 'fa-regular'}`}></i>
+                                                {watchlist.some(w => w.rank === moviesDatabase[currentCarousel].rank) ? '已加入' : '收藏'}
+                                            </button>
+                                            <button 
+                                                onClick={() => setSelectedDetailMovie(moviesDatabase[currentCarousel])} 
+                                                className="bg-amber-400 hover:bg-amber-500 text-black px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition-all active:scale-95"
+                                            >
+                                                查閱完整影評 <i className="fa-solid fa-arrow-right ml-1"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right Navigation Menu */}
+                                <div className="lg:col-span-5 flex flex-col gap-3">
+                                    {moviesDatabase.slice(0, 5).map((m, idx) => (
+                                        <button 
+                                            key={m.rank}
+                                            onClick={() => setCurrentCarousel(idx)}
+                                            className={`w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-300 ${currentCarousel === idx ? 'bg-white/10 border-l-4 border-amber-400 translate-x-1' : 'bg-transparent border border-white/5 hover:bg-white/5'}`}
+                                        >
+                                            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-serif ${currentCarousel === idx ? 'bg-amber-400 text-black' : 'bg-white/10 text-neutral-450'}`}>
+                                                {m.rank}
+                                            </span>
+                                            <div>
+                                                <h4 className="font-semibold text-sm line-clamp-1">{m.title}</h4>
+                                                <p className="text-xs text-neutral-400 mt-0.5">{m.director} · {m.year}</p>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Interactive Body Grid */}
+                    <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        
+                        {}
+                        <aside className="lg:col-span-3 space-y-6">
+                            
+                            {/* Fast actions on mobile */}
+                            <div className="grid grid-cols-2 gap-3 lg:hidden">
+                                <button 
+                                    onClick={() => setShowQuiz(true)} 
+                                    className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-xl text-center shadow-sm"
+                                >
+                                    <i className="fa-solid fa-wand-magic-sparkles text-xl mb-1"></i>
+                                    <span className="text-xs font-bold">命中注定電影測驗</span>
+                                </button>
+                                <button 
+                                    onClick={triggerRandomizer} 
+                                    className="flex flex-col items-center justify-center p-4 bg-neutral-900 text-white dark:bg-neutral-800 rounded-xl text-center shadow-sm"
+                                >
+                                    <i className="fa-solid fa-shuffle text-xl mb-1"></i>
+                                    <span className="text-xs font-bold">隨機推薦</span>
+                                </button>
+                            </div>
+
+                            {/* Main Filter Panel */}
+                            <div className="bg-white dark:bg-[#16161a] p-6 rounded-2xl border nyt-border shadow-sm space-y-5 sticky top-20">
+                                <h3 className="font-serif font-bold text-lg border-b nyt-border pb-3 flex items-center justify-between">
+                                    <span>智慧過濾篩選</span>
+                                    <i className="fa-solid fa-sliders text-amber-500 text-xs"></i>
+                                </h3>
+
+                                {/* Search Input */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        搜尋電影 / 導演 / 年份
+                                    </label>
+                                    <div className="relative">
+                                        <input 
+                                            type="text" 
+                                            placeholder="輸入中英文片名、導演..."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="w-full pl-9 pr-4 py-2 text-sm bg-neutral-50 dark:bg-neutral-900 border nyt-border rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-neutral-800 dark:text-neutral-100"
+                                        />
+                                        <i className="fa-solid fa-magnifying-glass absolute left-3 top-3 text-neutral-450 text-xs"></i>
+                                        {searchTerm && (
+                                            <button onClick={() => setSearchTerm("")} className="absolute right-3 top-2.5 text-neutral-450 hover:text-neutral-600 text-sm">
+                                                <i className="fa-solid fa-xmark"></i>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Genre Selector */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        電影類型
+                                    </label>
+                                    <select 
+                                        value={selectedGenre} 
+                                        onChange={(e) => setSelectedGenre(e.target.value)}
+                                        className="w-full px-3 py-2 text-sm bg-neutral-50 dark:bg-neutral-900 border nyt-border rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                    >
+                                        <option value="All">全部類型</option>
+                                        <option value="劇情">劇情 (Drama)</option>
+                                        <option value="懸疑驚悚">懸疑驚悚 (Thriller)</option>
+                                        <option value="浪漫愛情">浪漫愛情 (Romance)</option>
+                                        <option value="科幻奇幻">科幻奇幻 (Sci-Fi)</option>
+                                        <option value="幽默喜劇">幽默喜劇 (Comedy)</option>
+                                        <option value="動畫藝術">動畫藝術 (Animation)</option>
+                                    </select>
+                                </div>
+
+                                {/* Decade Selector */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        上映年代
+                                    </label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {["All", "2000s", "2010s", "2020s"].map(dec => (
+                                            <button
+                                                key={dec}
+                                                onClick={() => setSelectedDecade(dec)}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider border transition-all ${selectedDecade === dec ? 'bg-neutral-900 text-white border-neutral-900 dark:bg-white dark:text-black dark:border-white' : 'bg-transparent border-neutral-200 dark:border-neutral-850 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'}`}
+                                            >
+                                                {dec === "All" ? "不限" : dec}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Sorting Rules */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        排列順序
+                                    </label>
+                                    <select 
+                                        value={sortBy} 
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                        className="w-full px-3 py-2 text-sm bg-neutral-50 dark:bg-neutral-900 border nyt-border rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 animate-fadeIn"
+                                    >
+                                        <option value="rank-asc">排名由高到低 (1 → 100)</option>
+                                        <option value="rank-desc">排名由低到高 (100 → 1)</option>
+                                        <option value="year-desc">年份由新到舊</option>
+                                        <option value="year-asc">年份由舊到新</option>
+                                    </select>
+                                </div>
+
+                                {/* View Mode Toggle */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        顯示模式
+                                    </label>
+                                    <div className="grid grid-cols-2 gap-2 bg-neutral-50 dark:bg-neutral-900 p-1 rounded-lg border nyt-border">
+                                        <button 
+                                            onClick={() => setViewMode("poster")} 
+                                            className={`py-1.5 rounded text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${viewMode === "poster" ? 'bg-white dark:bg-neutral-800 shadow-sm text-amber-500' : 'text-neutral-500'}`}
+                                        >
+                                            <i className="fa-solid fa-file-image"></i>標準海報
+                                        </button>
+                                        <button 
+                                            onClick={() => setViewMode("editorial")} 
+                                            className={`py-1.5 rounded text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${viewMode === "editorial" ? 'bg-white dark:bg-neutral-800 shadow-sm text-amber-500' : 'text-neutral-500'}`}
+                                        >
+                                            <i className="fa-solid fa-newspaper"></i>報刊清單
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Clear Filters */}
+                                {(searchTerm || selectedGenre !== "All" || selectedDecade !== "All") && (
+                                    <button 
+                                        onClick={() => {
+                                            setSearchTerm("");
+                                            setSelectedGenre("All");
+                                            setSelectedDecade("All");
+                                            setSortBy("rank-asc");
+                                        }}
+                                        className="w-full py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-xs font-bold rounded-lg transition-all"
+                                    >
+                                        清除全部過濾條件
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Watchlist Section */}
+                            <div className="bg-white dark:bg-[#16161a] p-6 rounded-2xl border nyt-border shadow-sm">
+                                <h3 className="font-serif font-bold text-lg border-b nyt-border pb-3 flex items-center justify-between mb-4">
+                                    <span>我的私房片單 ({watchlist.length})</span>
+                                    <i className="fa-solid fa-heart text-red-500 animate-pulse"></i>
+                                </h3>
+                                {watchlist.length === 0 ? (
+                                    <p className="text-xs text-neutral-400 py-4 text-center font-serif italic">
+                                        「尚未加入影片。點選電影卡片上的心型圖標來建立您的私人放映名單。」
+                                    </p>
+                                ) : (
+                                    <div className="max-h-60 overflow-y-auto space-y-3">
+                                        {watchlist.map(movie => (
+                                            <div key={movie.rank} className="flex items-center justify-between gap-2 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-900 rounded-lg group transition-all">
+                                                <button 
+                                                    onClick={() => setSelectedDetailMovie(movie)}
+                                                    className="flex items-center gap-2 text-left flex-grow"
+                                                >
+                                                    <span className="text-xs font-serif font-bold text-amber-500">#{movie.rank}</span>
+                                                    <span className="text-xs font-semibold line-clamp-1 group-hover:text-amber-500 transition-all">{movie.title}</span>
+                                                </button>
+                                                <button 
+                                                    onClick={(e) => toggleWatchlist(movie, e)}
+                                                    className="text-neutral-300 hover:text-red-500 p-1 text-xs"
+                                                    title="移除"
+                                                >
+                                                    <i className="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </aside>
+
+                        {}
+                        <section className="lg:col-span-9 space-y-6">
+
+                            {/* Grid jumper */}
+                            <div className="bg-white dark:bg-[#16161a] p-5 rounded-2xl border nyt-border shadow-sm">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
+                                        <i className="fa-solid fa-list-ol text-amber-500"></i>
+                                        1-100 快速直達跳轉
+                                    </h3>
+                                    <span className="text-[10px] text-neutral-450">點選快速滑動定位到該電影</span>
+                                </div>
+                                <div className="grid grid-cols-10 gap-1.5 max-h-32 overflow-y-auto p-1.5 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-black/5 dark:border-white/5">
+                                    {Array.from({ length: 100 }, (_, i) => i + 1).map(num => {
+                                        const isInWatchlist = watchlist.some(w => w.rank === num);
+                                        return (
+                                            <button
+                                                key={num}
+                                                onClick={() => jumpToMovie(num)}
+                                                className={`aspect-square flex items-center justify-center text-[11px] font-semibold rounded border transition-all ${
+                                                    isInWatchlist 
+                                                    ? 'bg-red-500/10 border-red-500/30 text-red-500 font-bold'
+                                                    : 'bg-white border-neutral-150 text-neutral-700 hover:border-amber-500 hover:text-amber-500 dark:bg-neutral-800 dark:border-neutral-750 dark:text-neutral-300'
+                                                }`}
+                                            >
+                                                {num}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between items-center px-1">
+                                <div className="text-xs text-neutral-500 dark:text-neutral-405">
+                                    當前篩選結果：共 <span className="font-bold text-neutral-900 dark:text-white">{filteredMovies.length}</span> 部
+                                </div>
+                                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold tracking-widest uppercase"><i className="fa-solid fa-circle-info mr-1"></i>點擊卡片看詳細深度影評</span>
+                            </div>
+
+                            {/* Main Cards Grid View (Dynamic switchable layout) */}
+                            {viewMode === "poster" ? (
+                                /* POSTER WALL VIEW */
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                                    {filteredMovies.length > 0 ? (
+                                        filteredMovies.map(movie => {
+                                            const isFav = watchlist.some(w => w.rank === movie.rank);
+                                            const isHighlighted = highlightedMovieId === movie.rank;
+                                            return (
+                                                <article 
+                                                    id={`movie-${movie.rank}`}
+                                                    key={movie.rank}
+                                                    onClick={() => setSelectedDetailMovie(movie)}
+                                                    className={`movie-card cursor-pointer group rounded-xl p-2.5 bg-white dark:bg-[#16161a] border flex flex-col justify-between relative hover:shadow-lg hover:-translate-y-1 ${isHighlighted ? 'highlight-target' : 'nyt-border'}`}
+                                                >
+                                                    <div className="space-y-3">
+                                                        {/* Styled Movie Poster Frame */}
+                                                        <div className="relative poster-glow">
+                                                            <MoviePoster imgId={movie.img} title={movie.title} rank={movie.rank} />
+                                                            {/* Favorite button float */}
+                                                            <button 
+                                                                onClick={(e) => toggleWatchlist(movie, e)}
+                                                                className={`absolute bottom-3 right-3 z-20 p-2 rounded-full shadow-md transition-all active:scale-95 ${isFav ? 'bg-red-500 text-white' : 'bg-black/60 backdrop-blur-sm text-neutral-300 hover:text-white'}`}
+                                                            >
+                                                                <i className="fa-solid fa-heart text-xs"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {/* Details Text */}
+                                                        <div className="px-1 text-left">
+                                                            <h3 className="font-serif text-sm sm:text-base font-bold text-neutral-900 dark:text-neutral-100 line-clamp-1 group-hover:text-amber-500 transition-colors">
+                                                                {movie.title}
+                                                            </h3>
+                                                            <p className="text-[10px] sm:text-xs text-neutral-450 italic line-clamp-1">
+                                                                {movie.originalTitle}
+                                                            </p>
+                                                            <div className="flex items-center justify-between mt-2 text-[10px] text-neutral-400">
+                                                                <span>{movie.director.split(" (")[0]}</span>
+                                                                <span className="font-bold text-neutral-500 dark:text-neutral-300">{movie.year}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </article>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="col-span-full py-16 text-center bg-white dark:bg-[#16161a] rounded-2xl border nyt-border shadow-sm">
+                                            <i className="fa-regular fa-folder-open text-4xl text-neutral-300 mb-3"></i>
+                                            <h3 className="font-serif font-bold text-lg">沒有找到符合條件的電影</h3>
+                                            <p className="text-sm text-neutral-400 mt-1">請嘗試修改關鍵字或移除分類篩選條件</p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                /* EDITORIAL LIST VIEW */
+                                <div className="space-y-4">
+                                    {filteredMovies.length > 0 ? (
+                                        filteredMovies.map(movie => {
+                                            const isFav = watchlist.some(w => w.rank === movie.rank);
+                                            const isHighlighted = highlightedMovieId === movie.rank;
+                                            return (
+                                                <article 
+                                                    id={`movie-${movie.rank}`}
+                                                    key={movie.rank}
+                                                    onClick={() => setSelectedDetailMovie(movie)}
+                                                    className={`p-5 rounded-xl bg-white dark:bg-[#16161a] border cursor-pointer hover:shadow transition-all text-left flex flex-col md:flex-row justify-between gap-4 items-start md:items-center ${isHighlighted ? 'highlight-target' : 'nyt-border'}`}
+                                                >
+                                                    <div className="flex items-start gap-4 flex-grow">
+                                                        <div className="font-serif text-3xl font-black text-amber-500 w-12 shrink-0">
+                                                            #{movie.rank}
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-serif text-lg font-bold text-neutral-900 dark:text-neutral-100 hover:text-amber-500 transition-colors">
+                                                                {movie.title} <span className="text-xs font-sans text-neutral-450 font-normal">({movie.originalTitle})</span>
+                                                            </h3>
+                                                            <p className="text-xs text-neutral-550 dark:text-neutral-400 mt-1 line-clamp-2 font-serif">
+                                                                {movie.description}
+                                                            </p>
+                                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                                <span className="text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-650 dark:text-neutral-400 px-2.5 py-0.5 rounded-full font-bold">
+                                                                    導演: {movie.director}
+                                                                </span>
+                                                                <span className="text-[10px] bg-amber-50 dark:bg-amber-950/40 text-amber-750 dark:text-amber-400 px-2.5 py-0.5 rounded-full font-bold">
+                                                                    {movie.genre}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-3 self-end md:self-center shrink-0">
+                                                        <button 
+                                                            onClick={(e) => toggleWatchlist(movie, e)}
+                                                            className={`p-2.5 rounded-full border ${isFav ? 'bg-red-500 text-white' : 'border-neutral-200 dark:border-neutral-800 text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900'}`}
+                                                        >
+                                                            <i className="fa-solid fa-heart text-xs"></i>
+                                                        </button>
+                                                        <button className="text-xs font-bold tracking-wider text-amber-500 hover:text-amber-600 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 rounded-lg">
+                                                            看影評 <i className="fa-solid fa-chevron-right ml-1"></i>
+                                                        </button>
+                                                    </div>
+                                                </article>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="py-16 text-center bg-white dark:bg-[#16161a] rounded-2xl border nyt-border">
+                                            <h3 className="font-serif font-bold text-lg">沒有找到符合條件的電影</h3>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Data Dashboard */}
+                            <section className="bg-white dark:bg-[#16161a] p-6 lg:p-8 rounded-2xl border nyt-border shadow-sm space-y-6">
+                                <h3 className="font-serif font-bold text-xl border-b nyt-border pb-3 flex items-center gap-3">
+                                    <i className="fa-solid fa-chart-pie text-amber-500"></i>
+                                    《紐約時報》百大電影大數據指南
+                                </h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {/* Decade counts */}
+                                    <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl space-y-3 text-left">
+                                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">年代入選佔比</h4>
+                                        <div className="space-y-2">
+                                            {Object.entries(stats.decadeCounts).map(([dec, count]) => (
+                                                <div key={dec} className="space-y-1">
+                                                    <div className="flex justify-between text-xs">
+                                                        <span className="font-medium">{dec}</span>
+                                                        <span className="text-neutral-500">{count} 部</span>
+                                                    </div>
+                                                    <div className="w-full bg-neutral-200 dark:bg-neutral-800 h-1.5 rounded-full overflow-hidden">
+                                                        <div className="bg-amber-500 h-full rounded-full" style={{ width: `${(count/100)*100}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Top directors */}
+                                    <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl space-y-3 text-left">
+                                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">入選最多部神作的導演</h4>
+                                        <div className="space-y-2 text-xs">
+                                            {stats.topDirectors.map(([name, count], index) => (
+                                                <div key={name} className="flex justify-between items-center py-1 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
+                                                    <span className="font-medium flex items-center gap-2">
+                                                        <span className="w-4 h-4 bg-amber-400/20 text-amber-600 rounded-full flex items-center justify-center font-bold text-[10px]">{index + 1}</span>
+                                                        {name}
+                                                    </span>
+                                                    <span className="font-bold text-amber-600">{count} 部</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Genres */}
+                                    <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl space-y-3 text-left">
+                                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">主要類型分佈</h4>
+                                        <div className="space-y-2 text-xs max-h-40 overflow-y-auto">
+                                            {Object.entries(stats.genreCounts).map(([genre, count]) => (
+                                                <div key={genre} className="flex justify-between items-center">
+                                                    <span className="font-medium text-neutral-600 dark:text-neutral-400">{genre}</span>
+                                                    <span className="font-bold">{count} 部</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </section>
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="border-t nyt-border bg-white dark:bg-[#121212] py-10 px-4 text-center text-xs text-neutral-400 mt-12 transition-colors duration-300">
+                        <div className="max-w-7xl mx-auto space-y-4">
+                            <p className="font-serif italic text-sm text-neutral-650 dark:text-neutral-300">"All the masterpieces fit to celebrate."</p>
+                            <p>© 2026 The New York Times Tribute & Film Interactive Guide. 本網站完全靜態，程式碼已極致優化，最適合一鍵發布到 GitHub Pages！</p>
+                            <div className="flex justify-center gap-4 text-sm text-neutral-500">
+                                <a href="https://github.com" target="_blank" className="hover:text-amber-500"><i className="fa-brands fa-github text-base"></i></a>
+                                <a href="#" className="hover:text-amber-500"><i className="fa-solid fa-envelope text-base"></i></a>
+                            </div>
+                        </div>
+                    </footer>
+
+                    {}
+                    {selectedDetailMovie && (
+                        <div 
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn"
+                            onClick={() => setSelectedDetailMovie(null)}
+                        >
+                            <div 
+                                className="bg-[#fcfbf9] dark:bg-[#141417] text-neutral-900 dark:text-neutral-100 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-amber-500/20 transform animate-scaleUp transition-all text-left flex flex-col max-h-[90vh]"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {/* Modal Header Strip */}
+                                <div className="p-4 border-b nyt-border flex justify-between items-center bg-neutral-100/50 dark:bg-neutral-900/50">
+                                    <span className="text-[10px] tracking-[0.25em] uppercase font-black text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                                        <i className="fa-solid fa-scroll"></i> NYT FILM ARCHIVE REVIEW
+                                    </span>
+                                    <button 
+                                        onClick={() => setSelectedDetailMovie(null)} 
+                                        className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 p-1 text-sm bg-neutral-200/50 dark:bg-neutral-800 rounded-full w-7 h-7 flex items-center justify-center"
+                                    >
+                                        <i className="fa-solid fa-xmark text-lg"></i>
+                                    </button>
+                                </div>
+
+                                {/* Modal Body (Scrollable) */}
+                                <div className="p-6 overflow-y-auto space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                                        
+                                        {/* Poster area in modal */}
+                                        <div className="md:col-span-5 w-44 mx-auto md:w-full shrink-0">
+                                            <MoviePoster imgId={selectedDetailMovie.img} title={selectedDetailMovie.title} rank={selectedDetailMovie.rank} />
+                                        </div>
+
+                                        {/* Primary Metadata */}
+                                        <div className="md:col-span-7 space-y-4">
+                                            <div className="space-y-1">
+                                                <span className="bg-amber-400 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                                                    RANKED #{selectedDetailMovie.rank}
+                                                </span>
+                                                <h3 className="font-serif text-3xl font-extrabold text-neutral-900 dark:text-white mt-2">
+                                                    {selectedDetailMovie.title}
+                                                </h3>
+                                                <p className="text-sm text-neutral-450 italic mt-0.5">
+                                                    {selectedDetailMovie.originalTitle} · {selectedDetailMovie.year} 年
+                                                </p>
+                                            </div>
+
+                                            <div className="flex flex-wrap gap-2 text-xs">
+                                                <span className="bg-neutral-150 dark:bg-neutral-850 px-2.5 py-1 rounded-full text-neutral-600 dark:text-neutral-300 font-semibold">
+                                                    <i className="fa-solid fa-film mr-1.5 text-amber-500"></i>{selectedDetailMovie.genre}
+                                                </span>
+                                                {selectedDetailMovie.duration && (
+                                                    <span className="bg-neutral-150 dark:bg-neutral-850 px-2.5 py-1 rounded-full text-neutral-650 dark:text-neutral-300 font-semibold">
+                                                        <i className="fa-regular fa-clock mr-1.5 text-amber-500"></i>{selectedDetailMovie.duration}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div className="text-xs space-y-1 text-neutral-600 dark:text-neutral-450 border-t border-b border-black/10 dark:border-white/10 py-3">
+                                                <p><span className="font-bold text-neutral-800 dark:text-neutral-250">導演:</span> {selectedDetailMovie.director}</p>
+                                                {selectedDetailMovie.stars && (
+                                                    <p className="line-clamp-1"><span className="font-bold text-neutral-800 dark:text-neutral-250">主演:</span> {selectedDetailMovie.stars}</p>
+                                                )}
+                                                {selectedDetailMovie.awards && (
+                                                    <p className="text-amber-600 dark:text-amber-400"><span className="font-bold text-neutral-800 dark:text-neutral-250">重要榮譽:</span> {selectedDetailMovie.awards}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Classic Quote block */}
+                                    {selectedDetailMovie.quote && (
+                                        <div className="bg-amber-500/10 border-l-4 border-amber-500 p-4 rounded-r-xl my-4">
+                                            <p className="font-serif italic text-base text-amber-700 dark:text-amber-400 font-black leading-relaxed">
+                                                {selectedDetailMovie.quote}
+                                            </p>
+                                            <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-400 block mt-1">— 經典台詞</span>
+                                        </div>
+                                    )}
+
+                                    {/* Authoritative Review Section */}
+                                    <div className="space-y-2">
+                                        <h4 className="font-serif text-lg font-bold border-b border-black/10 dark:border-white/10 pb-1.5 text-amber-600 dark:text-amber-450 flex items-center gap-2">
+                                            <i className="fa-solid fa-feather-pointed"></i> 紐約時報權威點評
+                                        </h4>
+                                        <p className="text-sm text-neutral-700 dark:text-neutral-300 font-serif leading-relaxed italic">
+                                            {selectedDetailMovie.review || selectedDetailMovie.description || "這是一部奠定21世紀電影全新美學高度的不可多得名作。影片不但在藝術、哲思上達到了歷史頂尖，其豐富細微的情感刻畫更使全球觀眾在往後的歲月裡無數次重溫與討論。"}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Modal Actions Footer */}
+                                <div className="p-5 border-t nyt-border bg-neutral-100/40 dark:bg-neutral-900/40 flex flex-wrap gap-3 items-center justify-between">
+                                    <button 
+                                        onClick={(e) => toggleWatchlist(selectedDetailMovie, e)}
+                                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 border ${watchlist.some(w => w.rank === selectedDetailMovie.rank) ? 'bg-red-500 text-white border-red-500' : 'border-neutral-250 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900'}`}
+                                    >
+                                        <i className="fa-solid fa-heart"></i>
+                                        {watchlist.some(w => w.rank === selectedDetailMovie.rank) ? '已加入私房片單' : '加入私房片單'}
+                                    </button>
+
+                                    <div className="flex gap-2">
+                                        {/* Look up trailer on Youtube */}
+                                        <a 
+                                            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(selectedDetailMovie.title + ' ' + selectedDetailMovie.year + ' 電影預告')}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+                                        >
+                                            <i className="fa-brands fa-youtube"></i>觀看預告
+                                        </a>
+
+                                        {/* Look up on Yahoo Movies TW */}
+                                        <a 
+                                            href={`https://movies.yahoo.com.tw/moviesearch_result.html?keyword=${encodeURIComponent(selectedDetailMovie.title)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+                                        >
+                                            <i className="fa-solid fa-magnifying-glass"></i>Yahoo! 電影
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Personality Quiz Pop Up */}
+                    {showQuiz && (
+                        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                            <div className="bg-white dark:bg-[#16161a] rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-amber-500/10 transform animate-scaleUp">
+                                <div className="p-6 border-b nyt-border flex justify-between items-center bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-950/10">
+                                    <div className="flex items-center gap-2">
+                                        <i className="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                                        <h3 className="font-serif font-bold text-lg">尋找命中注定的電影</h3>
+                                    </div>
+                                    <button 
+                                        onClick={() => { setShowQuiz(false); resetQuiz(); }} 
+                                        className="text-neutral-400 hover:text-neutral-600 p-1 text-sm bg-neutral-100 dark:bg-neutral-800 rounded-full"
+                                    >
+                                        <i className="fa-solid fa-xmark text-lg"></i>
+                                    </button>
+                                </div>
+
+                                <div className="p-6 text-left">
+                                    {quizStep < quizQuestions.length ? (
+                                        <div className="space-y-6">
+                                            <div className="w-full bg-neutral-100 dark:bg-neutral-800 h-1 rounded-full overflow-hidden">
+                                                <div className="bg-amber-500 h-full transition-all" style={{ width: `${((quizStep)/quizQuestions.length)*100}%` }}></div>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <span className="text-xs font-bold text-amber-500 uppercase tracking-widest">問題 {quizStep + 1} of {quizQuestions.length}</span>
+                                                <h4 className="font-serif text-lg font-bold">{quizQuestions[quizStep].question}</h4>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 gap-3">
+                                                {quizQuestions[quizStep].options.map(option => (
+                                                    <button
+                                                        key={option.value}
+                                                        onClick={() => handleQuizAnswer(quizQuestions[quizStep].id, option.value)}
+                                                        className="flex items-center gap-4 p-4 text-left border border-neutral-200 dark:border-neutral-800 hover:border-amber-500 hover:bg-amber-500/5 dark:hover:bg-amber-500/10 rounded-2xl transition-all group"
+                                                    >
+                                                        <span className="w-10 h-10 rounded-xl bg-neutral-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 group-hover:bg-amber-500 group-hover:text-white transition-all flex items-center justify-center text-sm">
+                                                            <i className={`fa-solid ${option.icon}`}></i>
+                                                        </span>
+                                                        <span className="text-sm font-semibold">{option.label}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-6 text-center">
+                                            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-500 rounded-full flex items-center justify-center mx-auto text-xl animate-bounce-slow">
+                                                <i className="fa-solid fa-check animate-pulse"></i>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <h4 className="font-serif text-xl font-bold">為您精選的命中注定電影</h4>
+                                                <p className="text-xs text-neutral-400">根據您的心靈探索，為您在百大電影中嚴選出 3 部驚世代表作：</p>
+                                            </div>
+
+                                            <div className="space-y-3 mt-4">
+                                                {quizResults.map(movie => (
+                                                    <div key={movie.rank} className="flex items-center gap-4 p-3 border border-neutral-200 dark:border-neutral-800 rounded-xl text-left bg-neutral-50 dark:bg-neutral-900/55 hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-all">
+                                                        <span className="text-xl font-serif font-black text-amber-500 w-10 text-center">#{movie.rank}</span>
+                                                        <div className="flex-grow">
+                                                            <h5 className="font-bold text-sm">{movie.title}</h5>
+                                                            <p className="text-xs text-neutral-400">{movie.director.split(" (")[0]} · {movie.year}年</p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setShowQuiz(false);
+                                                                    setSelectedDetailMovie(movie);
+                                                                }}
+                                                                className="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-black dark:hover:bg-neutral-100 rounded-lg text-xs font-bold"
+                                                            >
+                                                                評點
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => toggleWatchlist(movie, e)}
+                                                                className={`p-2 rounded-full border ${watchlist.some(w => w.rank === movie.rank) ? 'bg-red-50 dark:bg-red-950/40 border-red-200 text-red-500' : 'border-neutral-200 text-neutral-400'}`}
+                                                                title="加入片單"
+                                                            >
+                                                                <i className="fa-solid fa-heart text-xs"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="flex gap-3 justify-center pt-4 border-t nyt-border">
+                                                <button 
+                                                    onClick={resetQuiz} 
+                                                    className="px-4 py-2 bg-neutral-105 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 rounded-xl text-xs font-bold transition-all"
+                                                >
+                                                    重新測驗
+                                                </button>
+                                                <button 
+                                                    onClick={() => { setShowQuiz(false); resetQuiz(); }} 
+                                                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all"
+                                                >
+                                                    確定去逛逛
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Dynamic Movie Randomizer Pop Up */}
+                    {showRandomizer && (
+                        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                            <div className="bg-white dark:bg-[#16161a] rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-amber-500/10 text-center">
+                                <div className="p-5 border-b nyt-border flex justify-between items-center bg-neutral-50 dark:bg-neutral-900">
+                                    <h3 className="font-serif font-bold text-base flex items-center gap-2">
+                                        <i className="fa-solid fa-clapperboard text-amber-500 animate-spin-slow"></i>
+                                        今天看哪部？命運放映盤
+                                    </h3>
+                                    {!isSpinning && (
+                                        <button 
+                                            onClick={() => { setShowRandomizer(false); setRandomMovie(null); }} 
+                                            className="text-neutral-400 hover:text-neutral-600 text-sm bg-neutral-150 dark:bg-neutral-800 rounded-full w-7 h-7 flex items-center justify-center"
+                                        >
+                                            <i className="fa-solid fa-xmark"></i>
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="p-8 space-y-6">
+                                    {isSpinning ? (
+                                        <div className="space-y-6 py-8">
+                                            {/* Spinning Shutter */}
+                                            <div className="w-24 h-24 border-8 border-dashed border-amber-500 rounded-full flex items-center justify-center mx-auto animate-spin-slow">
+                                                <i className="fa-solid fa-film text-3xl text-neutral-400"></i>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <p className="text-xs uppercase tracking-widest text-neutral-400 font-bold animate-pulse">正在精選二十一世紀神作名單中...</p>
+                                                <h4 className="font-serif text-xl font-bold italic text-amber-600 dark:text-amber-400 line-clamp-1">{spinTitle || "《神鬼戰士》"}</h4>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        randomMovie && (
+                                            <div className="space-y-6 transform animate-scaleUp">
+                                                <div className="space-y-2">
+                                                    <span className="bg-amber-400 text-black text-xs font-black px-3 py-1 rounded-full">
+                                                        NO. {randomMovie.rank}
+                                                    </span>
+                                                    <h4 className="font-serif text-2xl font-bold text-neutral-900 dark:text-white mt-2">
+                                                        {randomMovie.title}
+                                                    </h4>
+                                                    <p className="text-xs text-neutral-400 italic font-medium">
+                                                        {randomMovie.originalTitle} · {randomMovie.year}年
+                                                    </p>
+                                                    <div className="py-1">
+                                                        <span className="bg-amber-50 dark:bg-amber-950/40 text-[10px] text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-full font-bold">
+                                                            {randomMovie.genre}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-xs sm:text-sm text-neutral-650 dark:text-neutral-300 font-serif leading-relaxed italic bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl">
+                                                    「{randomMovie.description}」
+                                                </p>
+
+                                                <div className="flex gap-3 justify-center">
+                                                    <button 
+                                                        onClick={(e) => toggleWatchlist(randomMovie, e)}
+                                                        className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border ${watchlist.some(w => w.rank === randomMovie.rank) ? 'bg-red-50 dark:bg-red-950/40 border-red-200 text-red-500' : 'border-neutral-200 text-neutral-700 dark:text-neutral-300 dark:border-neutral-800'}`}
+                                                    >
+                                                        <i className="fa-solid fa-heart"></i>
+                                                        {watchlist.some(w => w.rank === randomMovie.rank) ? '已收藏' : '加入片單'}
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setShowRandomizer(false);
+                                                            setSelectedDetailMovie(randomMovie);
+                                                            setRandomMovie(null);
+                                                        }}
+                                                        className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all"
+                                                    >
+                                                        查閱完整影評
+                                                    </button>
+                                                </div>
+
+                                                <button 
+                                                    onClick={triggerRandomizer} 
+                                                    className="w-full py-2 text-neutral-400 hover:text-neutral-600 text-[10px] uppercase tracking-widest font-bold transition-all"
+                                                >
+                                                    <i className="fa-solid fa-arrows-rotate mr-1"></i> 再抽一次
+                                                </button>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Universal Toast Notifications */}
+                    {toast.show && (
+                        <div className="fixed bottom-6 right-6 bg-neutral-900 text-white dark:bg-[#faf9f6] dark:text-[#121212] py-3.5 px-5 rounded-xl shadow-xl z-50 flex items-center gap-2.5 transform animate-slideUp text-xs font-semibold tracking-wider border border-white/10 dark:border-black/5">
+                            <i className="fa-solid fa-circle-check text-amber-500"></i>
+                            <span>{toast.message}</span>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Render React DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
