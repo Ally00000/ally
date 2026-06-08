@@ -916,16 +916,15 @@
       };
     });
 
+    const ALL_GENRES = "全部類型";
+    const ALL_MOODS = "全部心情";
     const moodInfo = {
-      "想被震撼": ["fa-bolt", "高張力、強議題或大視野，適合想看完後被留下來的作品。"],
-      "想沉澱": ["fa-mug-hot", "節奏較安靜，適合夜晚慢慢看，讓情緒自然發酵。"],
-      "想緊張": ["fa-eye", "懸疑、犯罪或驚悚，適合想要心跳變快的時候。"],
-      "想看爽片": ["fa-fire", "節奏明快、視覺強烈，能直接把觀影能量拉滿。"],
-      "想解謎": ["fa-puzzle-piece", "適合喜歡分析結構、象徵和開放式結局的觀眾。"],
-      "想被療癒": ["fa-seedling", "比較溫暖、有想像力，適合讓心情回到柔軟狀態。"],
-      "想哭一下": ["fa-heart-crack", "情感濃度高，適合需要一點釋放的時候。"],
-      "想看表演": ["fa-masks-theater", "以演員、角色能量或表演張力為核心的作品。"],
-      "想看節奏": ["fa-gauge-high", "剪接、對白或敘事節奏俐落，觀看過程很有推進感。"]
+      "想被療癒": ["fa-seedling", "動畫、奇幻或冒險作品，適合想讓心情回到柔軟狀態。"],
+      "想看爽片": ["fa-fire", "動作、科幻或戰爭作品，節奏明快，視覺能量強。"],
+      "想緊張": ["fa-eye", "犯罪、懸疑、驚悚或恐怖作品，適合想要心跳變快的時候。"],
+      "想沉澱": ["fa-mug-hot", "劇情或愛情作品，節奏較安靜，適合慢慢看。"],
+      "想看節奏": ["fa-gauge-high", "喜劇或節奏俐落的作品，觀看過程推進感明顯。"],
+      "想補影史": ["fa-book-open", "紀錄、傳記或歷史作品，適合補齊榜單脈絡。"]
     };
 
     const saved = new Set(JSON.parse(localStorage.getItem("allyFilmSaved") || "[]"));
@@ -1004,27 +1003,30 @@
     }
 
     function renderFilters() {
-      const genres = ["全部類型", ...new Set(movies.map(movie => movie.category))];
-      const moods = ["全部心情", ...new Set(movies.map(movie => movie.mood))];
+      const genres = [ALL_GENRES, ...new Set(movies.map(movie => movie.category))];
+      const moods = [ALL_MOODS, ...new Set(movies.map(movie => movie.mood))];
       genreFilter.innerHTML = genres.map(item => `<option value="${item}">${item}</option>`).join("");
       moodFilter.innerHTML = moods.map(item => `<option value="${item}">${item}</option>`).join("");
+      genreFilter.value = ALL_GENRES;
+      moodFilter.value = ALL_MOODS;
     }
 
     function getFilteredMovies() {
       const keyword = searchInput.value.trim().toLowerCase();
-      const genre = genreFilter.value;
-      const mood = moodFilter.value;
+      const genre = genreFilter.value || ALL_GENRES;
+      const mood = moodFilter.value || ALL_MOODS;
       let list = movies.filter(movie => {
         const haystack = [movie.title, movie.original, movie.director, movie.year, movie.genre, movie.mood, movie.tags.join(" ")].join(" ").toLowerCase();
         return (!keyword || haystack.includes(keyword)) &&
-          (genre === "全部類型" || movie.category === genre) &&
-          (mood === "全部心情" || movie.mood === mood);
+          (genre === ALL_GENRES || movie.category === genre) &&
+          (mood === ALL_MOODS || movie.mood === mood);
       });
 
-      if (sortSelect.value === "yearDesc") list = list.sort((a, b) => b.year - a.year);
-      if (sortSelect.value === "yearAsc") list = list.sort((a, b) => a.year - b.year);
-      if (sortSelect.value === "director") list = list.sort((a, b) => a.director.localeCompare(b.director));
-      if (sortSelect.value === "rank") list = list.sort((a, b) => a.rank - b.rank);
+      const sortMode = sortSelect.value || "rank";
+      if (sortMode === "yearDesc") list = list.sort((a, b) => b.year - a.year);
+      if (sortMode === "yearAsc") list = list.sort((a, b) => a.year - b.year);
+      if (sortMode === "director") list = list.sort((a, b) => a.director.localeCompare(b.director));
+      if (sortMode === "rank") list = list.sort((a, b) => a.rank - b.rank);
       return list;
     }
 
@@ -1049,7 +1051,7 @@
     function renderMoods() {
       const moods = [...new Set(movies.map(movie => movie.mood))].slice(0, 8);
       document.querySelector("#moodPanels").innerHTML = moods.map(mood => {
-        const [icon, text] = moodInfo[mood];
+        const [icon, text] = moodInfo[mood] || ["fa-film", "這個分類收錄 NYT 百大榜單中的相關作品。"];
         const count = movies.filter(movie => movie.mood === mood).length;
         return `
           <button class="panel" data-mood-pick="${mood}" style="text-align:left; cursor:pointer;">
@@ -1106,7 +1108,7 @@
       if (!movie) return;
       document.querySelector("#modalPoster").outerHTML = posterMarkup(movie);
       document.querySelector(".modal-card .poster-art").id = "modalPoster";
-      document.querySelector("#modalRank").innerHTML = `<i class="fa-solid fa-ranking-star"></i>推薦 #${movie.rank}`;
+      document.querySelector("#modalRank").innerHTML = `<i class="fa-solid fa-ranking-star"></i>NYT #${movie.rank}`;
       document.querySelector("#modalTitle").textContent = movie.title;
       document.querySelector("#modalMeta").innerHTML = metaMarkup(movie);
       document.querySelector("#modalDescription").textContent = movie.description;
