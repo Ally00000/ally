@@ -304,6 +304,43 @@
       gap: 18px;
     }
 
+    .video-layout {
+      display: grid;
+      grid-template-columns: minmax(0, .88fr) minmax(320px, 1.12fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .video-copy {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .video-copy h3 {
+      font-size: clamp(24px, 4vw, 38px);
+      line-height: 1.14;
+      margin: 10px 0 12px;
+    }
+
+    .video-frame {
+      border: 1px solid rgba(23, 20, 17, .14);
+      border-radius: 8px;
+      overflow: hidden;
+      background: #111;
+      box-shadow: 0 10px 34px rgba(54, 39, 20, .08);
+      aspect-ratio: 16 / 9;
+    }
+
+    .video-frame iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+      display: block;
+    }
+
     .feature-card, .panel, .movie-card {
       border: 1px solid rgba(23, 20, 17, .14);
       background: rgba(255, 250, 240, .76);
@@ -608,7 +645,7 @@
     }
 
     @media (max-width: 960px) {
-      .hero, .spotlight, .modal-card { grid-template-columns: 1fr; }
+      .hero, .spotlight, .video-layout, .modal-card { grid-template-columns: 1fr; }
       .hero { padding-top: 36px; }
       .hero-board { min-height: 520px; }
       .feature-card { grid-template-columns: 180px 1fr; }
@@ -690,6 +727,36 @@
         <p>榜單前四名分別代表社會寓言、夢境迷宮、資本史詩與情感詩意，是理解這份百大名單的最佳入口。</p>
       </div>
       <div class="spotlight" id="featuredGrid"></div>
+    </section>
+
+    <section id="video-feature" class="shell">
+      <div class="video-layout">
+        <div class="panel video-copy">
+          <div>
+            <span class="eyebrow"><i class="fa-brands fa-youtube"></i> Video Guide</span>
+            <h3>想先用影片快速進榜單，這裡有一支補片導覽。</h3>
+            <p>這支影片放在首頁首屏之後，不影響你現在看到的主視覺與排版節奏；適合先看完前段介紹，再用影片快速建立對《紐約時報》21 世紀百大電影的整體印象。</p>
+          </div>
+          <div class="card-actions">
+            <a class="btn primary" href="https://www.youtube.com/watch?v=Bz0QqZrqoyY" target="_blank" rel="noopener noreferrer">
+              <i class="fa-brands fa-youtube"></i>在 YouTube 開啟
+            </a>
+            <a class="btn" href="#library">
+              <i class="fa-solid fa-table-cells-large"></i>直接看榜單
+            </a>
+          </div>
+        </div>
+        <div class="video-frame" aria-label="紐約時報 21 世紀百大電影影片導覽">
+          <iframe
+            src="https://www.youtube.com/embed/Bz0QqZrqoyY?rel=0"
+            title="紐約時報 21 世紀百大電影影片導覽"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
+        </div>
+      </div>
     </section>
 
     <div class="toolbar">
