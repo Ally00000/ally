@@ -1,0 +1,1393 @@
+﻿<!DOCTYPE html>
+<html lang="zh-TW" class="scroll-smooth">
+<head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-J5DM35NHLQ"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-J5DM35NHLQ');
+</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The New York Times - 21 銝??曉之?餃蔣???????/title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        serif: ['"Playfair Display"', 'Georgia', 'serif'],
+                        sans: ['Inter', '-apple-system', 'sans-serif'],
+                    },
+                    animation: {
+                        'spin-slow': 'spin 12s linear infinite',
+                        'bounce-slow': 'bounce 2s infinite',
+                        'shutter': 'shutter 0.3s ease-in-out infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts for Editorial look -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&display=swap" rel="stylesheet">
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- React & Babel CDN -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- Canvas Confetti for winning recommendations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Editorial styled borders and elements */
+        .nyt-border {
+            border-color: rgba(0, 0, 0, 0.12);
+        }
+        .dark .nyt-border {
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+        .nyt-double-border {
+            border-style: double;
+            border-width: 3px 0;
+        }
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+        /* Smooth scale animation on cards */
+        .movie-card {
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        /* Highlighting target card */
+        .highlight-target {
+            animation: pulse-ring 2.5s infinite;
+        }
+        @keyframes pulse-ring {
+            0%, 100% {
+                box-shadow: 0 0 0 0px rgba(197, 160, 89, 0.8);
+                border-color: rgba(197, 160, 89, 1);
+            }
+            50% {
+                box-shadow: 0 0 0 15px rgba(197, 160, 89, 0);
+                border-color: rgba(197, 160, 89, 0.4);
+            }
+        }
+        /* Movie poster reflection effect */
+        .poster-glow::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.15), transparent);
+            transform: skewX(-25deg);
+            transition: 0.75s;
+        }
+        .poster-glow:hover::after {
+            left: 125%;
+        }
+    </style>
+</head>
+<body class="bg-[#fcfbf9] text-[#111111] font-sans antialiased transition-colors duration-300 dark:bg-[#0c0c0e] dark:text-[#f3f4f6]">
+
+    <!-- React Root Entry -->
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
+
+        const moviesDatabase = [
+            { rank: 1, title: "撖?銝?", originalTitle: "Parasite", director: "憟???(Bong Joon Ho)", year: 2019, genre: "?貊?撽?", description: "璁桃????瑹?憟扳?⊥?雿喳蔣??隞亦移憒?蝛粹??勗???脣厭暺?瘛勗??鞎批?????撖???雓砍挪?賬?, rating: "9.6", duration: "132 min", color: "from-emerald-950 to-neutral-900", img: "1513694203232-719a280e022f", quote: "?撠勗??冽?嚗???介?粹?典像??, stars: "摰熒?? ???? ?寞?鞎? 撏?璊?, awards: "??敶勗???瑹??尼?臬?雿喳蔣??4?之??, review: "????瘚銝?典?平憡?????頧?瘛勗???孵銝剝??啣?蝢像銵∠?蟡???瞍?靽?撌批??拍璅０?銝恕嚗??嗡誨蝷暹??瓷撖暑皞??粹???蝛粹?????????餃蔣???莎??湔21銝??函???憓?嚗??啗?曹蜓蝢拙璈?蝎暹?????? },
+            { rank: 2, title: "蝛?剖之??, originalTitle: "Mulholland Drive", director: "憭扯?繚?? (David Lynch)", year: 2001, genre: "?貊?撽?", description: "鈭?銝銝???之??????雿?憒丐憓??蝺扳?鈭???頨怠?嚗閮末?﹜???????憭梯餈瑁??, rating: "9.5", duration: "147 min", color: "from-indigo-950 to-neutral-900", img: "1509114397022-ed747cca3f65", quote: "???銝朣?鈭?, stars: "憡??瑁?? ?踵?繚鞈?? 鞈瘙繚憛??", awards: "??敶勗??雿喳?瞍??尼?臬?雿喳?瞍???, review: "憭扯?繚??撠末?﹜憛?銝???砍丐?唾????楊憭折??脫憬皜艾蔣?????遛撣???憭Ｙ咱閰梧?敺??典??銝?游?蝣?憒?瘥皛?畾憭ａ??蔣????抒?憭Ｗ??摩嚗蝙摰?銝甈⊿??憒??冽?????葉?貊揣嚗璆菔?敶梯??質?銵? },
+            { rank: 3, title: "暺?隡平", originalTitle: "There Will Be Blood", director: "靽?繚皝舐?純瑕?敺瑟ㄝ (Paul Thomas Anderson)", year: 2007, genre: "??", description: "銝孵側?壇瑟-頝舀??臬蔣撣?瞍?嚗????蝝???瘝孵之鈭函??迨撖??遛鞎芸帚????銵?亦??澆振?脯?, rating: "9.5", duration: "158 min", color: "from-amber-950 to-neutral-900", img: "1518709268805-4e9042af9f23", quote: "???嗾鈭??扒????摰??鈭???, stars: "銝孵側?壇瑟-頝舀??? 靽?繚?姥, ?望?繚J繚甇熒蝝?, awards: "憟扳?⊥?雿喟銝餉???雿單?敶勗之??, review: "?銝?券??潛????砌蜓蝢抵????典??鈭??胯??祉??脰帘撌其???蝢瑟僖?芣繚摰噸璉桐誑?琿?楊憭抒?暺?瘝嫣??恍嚗??蝧啣側繚?潭?隡噸隞支犖???????璅????箔號撠潛繚??頝舀??舐??脰璆萸?銝?蝯??⊿??祆????撠曉鞊芸?靽翩?尹??瘙綽??芰迂敶勗????? },
+            { rank: 4, title: "?望見撟渲", originalTitle: "In the Mood for Love", director: "?振銵?(Wong Kar-wai)", year: 2000, genre: "瘚芣憤??", description: "隞交扔?渡?閬死蝢飛????鋡??扯?憭扳??湔?蝡?蝝啗????皜舀革?葉憯?????瑕戊蝜曄閎???, rating: "9.4", duration: "98 min", color: "from-red-950 to-neutral-900", img: "1514306191717-452ec28c7814", quote: "????銝撘菔蟡剁?雿?銝?頝?銝韏瑁粥嚗?, stars: "璇??? 撘菜??, awards: "??敶勗??雿喟銝餉???銵之??, review: "?振銵??望???賬??憯?嚗??銝擐扔?游失?舐?閬死閰押蝒???璇舫???暺?頝舐???擏??函結銝哨?璇???撘菜??潛????貊???澈擃?敺桀??輯?嚗迄隤芯?敶勗銝??犖銋??箸??憭??扼?脯umeji's Theme?韏瘀?靘踵銝?敹???? },
+            { rank: 5, title: "??銝???瑕酋", originalTitle: "Moonlight", director: "鞎?繚????(Barry Jenkins)", year: 2016, genre: "??", description: "皞急?閰拇??唳?蝜芯???鋆?敹摮抬??冽????鞎批???踹?嚗?瘙??????韐??銝?脯?, rating: "9.3", duration: "111 min", color: "from-blue-950 to-neutral-900", img: "1507525428034-b723cf961d3e", quote: "???銝?暺犖?瑕酋?絲靘???, stars: "撏?嗽瑞?敺? 摰噸?瑁?? 擐祈筍憭?繚?輸?", awards: "憟扳?⊥?雿喳蔣??雿喟????雿單蝺典???, review: "??餃蔣隞仿??∠?皞急??帘???鈭犖???楠蝷曄黎?????游???踹?閬???箏酋蝡乓?撟氬?撟港??挾嚗?銝畾菟?遛鈭????絲瘞氬◢?脰??批?摮文??敦蝺餃?怒?瞍??隞交蔭瞈澈???脰矽嚗???銝雿?鋆?敹?′憭挺銝??摹?瘥??舐???瘛梯??? },
+            { rank: 6, title: "?芾楝?輯?", originalTitle: "No Country for Old Men", director: "?舀?? (Joel & Ethan Coen)", year: 2007, genre: "?貊?撽?", description: "?琿?⊥??隞?正?券??????賡??撣貉??瑁?畾箸??畾綽?瘛勗??蝘拙?隞亙??喟絞甇?儔??鈭～?, rating: "9.3", duration: "122 min", color: "from-stone-900 to-neutral-900", img: "1480009119597-2ac29c0de522", quote: "???臭??僑鈭箄敺??振??, stars: "皝舐掖繚?瑞??? ?雁?壇瑕毀?? ?祈迂繚撣???, awards: "憟扳?⊥?雿喳蔣??雿喳?瞍?4?之??, review: "?頝臬餈?舀???餃蔣?雄??撜堆??寧楊?芾漸?琿漸?⊿????隤芥?蝬剔繚撌渡憌暹??銵畾箸?嚗??除瑽?蝖砍馳瘙箏??香嚗誨銵其?摰?銝剔?柴璈?銝?????摰踹??嗾銋????舫璅?銋暹楊靽???脣?憸冽??莎?撠?憯??葉鈭箸抒?蝯????唬?璆菔?? },
+            { rank: 7, title: "???文振", originalTitle: "Eternal Sunshine of the Spotless Mind", director: "蝐單??壇琿?敺琿? (Michel Gondry)", year: 2004, genre: "瘚芣憤??", description: "撠?撟餉瘣?璊???摰?蝯??閮瘨??撟餃?鋆?嚗神撖血?圾??葉??瑯???瘜???摰踹??, rating: "9.2", duration: "108 min", color: "from-sky-950 to-neutral-900", img: "1492446845123-afc97a02049e", quote: "??霈????????塚?撠梢??停憟賬?, stars: "?瑕?? ?梁繚皞怎結?? ?瘙繚?扳??, awards: "憟扳?⊥?雿喳??萄??砍之??, review: "擛潭?蝺典??亦?繚?井?潸?撠?樴噸?????菟??敶勗??之??撟餅??敶晞??梁??嗆?鈭?撘萇???銵冽?嚗?瘛望???擛梁??批??瑕?瞍?隞支犖敹???撓撏拙???憭梁??行絲閮?湔銝哨??瑕戊銝餉??澆憟?嚗?箔?摰風隞????楚?靘踹挪?賡?靘????嗆??豢??活??雿? },
+            { rank: 8, title: "?蝯??, originalTitle: "Get Out", director: "?祉繚?桃 (Jordan Peele)", year: 2017, genre: "?貊?撽?", description: "撠?鈭箇??曆誨??頧??箸扔?湧???隢瑕??敺孵?憿??喟絞撽?憿?嚗?韏瑟扔?瑞冗??文??????拙??, rating: "9.2", duration: "104 min", color: "from-neutral-950 to-red-950", img: "1534447677763-a0e280d4d9af", quote: "???乩??瑕??扼?, stars: "銝孵側?壇瑕?找?, ?曇?璉捍瑕?撱結, ?梯?麻琿?憡?, awards: "憟扳?⊥?雿喳??萄??祉???雿喳蔣????, review: "?祉繚?桃銝曈湧?鈭箇??戊雿?撠???芰瘣曄鈭箏??瑚???車?蜓蝢抬?頧??箔誘鈭箸?撉冽??嗥?蝎曄??批??擃?憟芣????敶曹葉???瑕?嚗he Sunken Place嚗?閬死?情嚗移皞?颱?撠???函冗???嗡葉憭梯??賜??暻餌?啣???憟?敹恬?隢瑕???交銝??? },
+            { rank: 9, title: "蟡撠戊", originalTitle: "Spirited Away", director: "摰桀?擏?(Hayao Miyazaki)", year: 2001, genre: "???", description: "???極雿恕撌陸銋?嚗戊摮拙?撠蟡?銝????瑕??迎??鈭??拇?刻??嗆???蝷暹???皞急????, rating: "9.4", duration: "125 min", color: "from-teal-950 to-neutral-900", img: "1478720143983-6f328674b1f5", quote: "?蝬???????航敹?嚗銝??舀銝絲蝵瑚???, stars: "??蝢? ?仿??芰, 憭暻駁?", awards: "憟扳?⊥?雿喳??恍?????蔣撅???", review: "???餃蔣銝??臭??游神蝯血酋摮???函?閰梧??湔銝?冽閮極璆剛??砌蜓蝢抵??犖?抒??仃?賜??犖撖???撠蟡?瘝孵???皛?????曉?鈭撌梯◤憟芸??摮??????唾?皞怠?????渲隡湧??????餉?銝??恍嚗歇??函??⊥閫?曉???蝯扔?啗??? },
+            { rank: 10, title: "蝷曄黎蝬脫", originalTitle: "The Social Network", director: "憭扯?繚?砍? (David Fincher)", year: 2010, genre: "??", description: "蝭憟?敹怒閰??抬?瘛勗閮?鈭?Facebook ?菔齒??銝剔??????迨?剁????箸銝誨?鈭粹??????整?, rating: "9.1", duration: "120 min", color: "from-blue-900 to-neutral-900", img: "1550750827-c91ff7c4424c", quote: "??瘝??踹鈭?????撠曹??航銝邦蝡嗾?鈭箝?, stars: "?正繚?暹ㄝ隡舀, 摰噸擳純瑕??脩敺? 鞈瘙繚??撣???, awards: "憟扳?⊥?雿單蝺典??研?雿喳頛胯?雿喳??菟?璅?, review: "憭扯?繚?砍??楊??威瑞揣???刻?憯急?鈭???憭抒?瘜?閫??鈭靚瑟鞎湧收?瑞????璆剔?閰晞揣????撘??啗?嚗??憟?瑯????芣??Trent Reznor ?極璆剝摮?璅?撠??渲?擃??潮?蝔???瘥?撟急?剝?閬?敹?擳誘鈭箇??胯??舀閮?1銝?鈭粹?摮文???瘛勗?神?扼? },
+            
+            { rank: 11, title: "??暻交嚗??", originalTitle: "Mad Max: Fury Road", director: "?祆祥繚蝐喳? (George Miller)", year: 2015, genre: "蝘劂憟劂", description: "鈭?銝銝????餃蔣??頩??函?撖行憌??寞???亙誥??摮賂?撅鈭扔?渡???撅祆???憟單找蜓蝢抵死??, rating: "9.3", duration: "120 min", img: "1509198397864-d3d56f67e9e2", quote: "??暻潛?憟賜?銝憭抬?憭獐蝢???憭抬???, stars: "??繚鞈賡?, 皝臬?繚?羲, 撠澆?繚?", awards: "憟扳?⊥?雿喳頛胯?雿喟?銵身閮?6?之?? },
+            { rank: 12, title: "?拍????, originalTitle: "The Zone of Interest", director: "?祉?璉捍瑁??瑞? (Jonathan Glazer)", year: 2023, genre: "??", description: "隞交扔?游恥閫??剛?擏凋犖?憓????葉??憭?蝎寞??桀?摰嗅滬撟貊??撣賂?撠?扯迄鈭箸抒??瑟??像摨訾??～?, rating: "9.0", duration: "105 min", img: "1464817739971-14757377f0f7", quote: "?????????怎蝔桀??渲???鈭??, stars: "???航?摰瑕????? 獢噸?瑟???, awards: "憟扳?⊥?雿喳??蔣??雿喲?之?? },
+            { rank: 13, title: "鈭粹?銋?", originalTitle: "Children of Men", director: "?暹蝝Ⅹ瑟??(Alfonso Cuar籀n)", year: 2006, genre: "蝘劂憟劂", description: "?其??脩?撠?銝??急?????臭?嚗?撽??琿?哨???鈭箸抒??飲?宏瘞?蝒??臭???????, rating: "9.0", duration: "109 min", img: "1506703719100-7fa251d110f0", quote: "??敺??酋摮??嚗????瑕瘞豢???撖?, stars: "??憭威瑟??? ?梯?摰瑟?? 暻亙繚?舀", awards: "憡側?臬蔣撅?銵之?尼?臬憭???" },
+            { rank: 14, title: "?⊥??孵極", originalTitle: "Inglourious Basterds", director: "??繚憛急?隢?(Quentin Tarantino)", year: 2009, genre: "??", description: "???神甇瑕???摮貊?扔摨衣?蝜??尹?啗?撠????脣厭暺??餃蔣?舀?銝???璆菜答瞍怒?, rating: "9.1", duration: "153 min", img: "1536440136628-849c177e76a1", quote: "???????????????, stars: "撣?敺溘瑕蝦?? ???臬?憭威瑁?? 璇憒捍瑞???, awards: "憟扳?⊥?雿喟???????臬?憭威瑁?莎?" },
+            { rank: 15, title: "銝?銋?", originalTitle: "City of God", director: "鞎餌??繚蝢??暹 (Fernando Meirelles)", year: 2003, genre: "??", description: "憒撅梁??潸?怎??亥??單?嚗神撖西??撅撌渲正???勗?扯異瘞?銝哨?瘥???撟怠?撟湧??餌??瑯?甇餅?頧??脫???, rating: "9.2", duration: "130 min", img: "1585228510433-cf7a0d1425af", quote: "??????隞??雿?憒?雿?嚗???畾箔?雿?, stars: "鈭風撅勗之繚蝢噸??? ??敺瑞?繚?脩蝐唾姥", awards: "憟扳?⊥?雿喳?瞍?雿喳頛舐?????" },
+            { rank: 16, title: "?亥???", originalTitle: "Crouching Tiger, Hidden Dragon", director: "?? (Ang Lee)", year: 2000, genre: "蝘劂憟劂", description: "撠?嫘扛???交郎靽擛伐??神???鈭箔??暹??鳥蝥???撠?寞郎靽?摮詨??脫????擃挪??, rating: "9.1", duration: "120 min", img: "1519074062522-bc2f132e41c4", quote: "???蝺?鋆⊿隞暻潮瘝?嚗????雿?????, stars: "?冽膜?? 璆換?? 蝡??? 撘菟?", awards: "憟扳?⊥?雿喳?隤???雿單?敶晞?雿唾?銵?撠?雿喳??菟璅? },
+            { rank: 17, title: "?瑁?撅?, originalTitle: "Brokeback Mountain", director: "?? (Ang Lee)", year: 2005, genre: "瘚芣憤??", description: "?拐??瑚?????銋?頝刻??詨?撟渡?憯???嚗?摰誑璆萄?勗????撟喳祕??閫賂??鼓?箇???曄?瘞豢??脣??, rating: "9.1", duration: "134 min", img: "1464821836676-e411117400d4", quote: "??撣???府憒???雿?, stars: "撣繚??, ??繚?恍?, 摰瑟絲??", awards: "憟扳?⊥?雿喳?瞍?雿單蝺典??研?雿喳??菟?璅? },
+            { rank: 18, title: "雿?慦賜?銋", originalTitle: "Y tu mam獺 tambi矇n", director: "?暹蝝Ⅹ瑟??(Alfonso Cuar籀n)", year: 2002, genre: "??", description: "?拙?撠僑?????戊摮?憓刻正?亙頝臭?????鈭?曇??????亥???????撠◢镼踹蝷暹??曉祕??颯?, rating: "8.9", duration: "106 min", img: "1507525428034-b723cf961d3e", quote: "???賢停?答?梧?頧?喲??隞亦?????, stars: "?繚鞈正鈭瑁?蝝? 餈芾嗅繚頝舫", awards: "憟扳?⊥?雿喳??萄??祆???撠潭敶勗??雿喳??祉?" },
+            { rank: 19, title: "蝝Ｗ暺?撣?, originalTitle: "Zodiac", director: "憭扯?繚?砍? (David Fincher)", year: 2007, genre: "?貊?撽?", description: "??潸蕭???葆畾箸?????霅行嚗??賭?憟?撅鈭?????瑁蕭瘙?雿?甇交郊??Ｗ????亙虜?暑?移蟡?, rating: "8.9", duration: "157 min", img: "1506880018680-2c1a20df7c51", quote: "??敹??仿???銝銋銝?扛??雿?嚗??芣??隞??潛??仿????, stars: "??繚?恍?, 擐砍?繚?扳?瘣? 撠??琿?撠?, awards: "??敶勗???瑹???" },
+            { rank: 20, title: "?舐銵???, originalTitle: "The Wolf of Wall Street", director: "擐砌?繚?脫镼踵 (Martin Scorsese)", year: 2013, genre: "撟賡???", description: "璆萄漲????瘛怒??瘥??????????憟抒?憭??”瞍?鞎芸帚???∟??詨???桀璆菔??, rating: "9.0", duration: "179 min", img: "1518156677184-c5d1f4045f44", quote: "?都蝯行??蝑?, stars: "?尼蝝?繚??格?, ?祉?繚撣, ?芣繚蝢?", awards: "憟扳?⊿???5??閬??? },
+            
+            { rank: 21, title: "憭拇?銝??, originalTitle: "The Royal Tenenbaums", director: "擳繚摰噸璉?(Wes Anderson)", year: 2001, genre: "撟賡???", description: "擳繚摰噸璉桀?蝔梁?摮貉?敺拙?脰矽?誨銵其?嚗?思??憭拇??咱蝯???芸振??憒??函??Ｕ仃????銝剖?瘙?閫??, rating: "8.8", duration: "110 min", img: "1501004318641-e39e6a27e24b" },
+            { rank: 22, title: "撣?雿拇憭折ㄞ摨?, originalTitle: "The Grand Budapest Hotel", director: "擳繚摰噸璉?(Wes Anderson)", year: 2014, genre: "撟賡???", description: "銝摨抒??脤ㄞ摨甇散?圈蝐蔗銝??喳???扔?渲弦??Ｗ?撅?敶抬?瑽??箔?畾萄?蕙鈭箏?隞支犖?⊿??????隞??, rating: "9.0", duration: "100 min", img: "1513151233553-9a5325e64ac5" },
+            { rank: 23, title: "撟游??誨", originalTitle: "Boyhood", director: "?敺溘瑟?????(Richard Linklater)", year: 2014, genre: "??", description: "敶勗?皞急??祕撽?甇瑟?12撟湔???銝雿??瑕酋???琿?蝔?瘝??賣????蝒??餃????頧葉隞支犖瘛?皛輸??, rating: "9.0", duration: "165 min", img: "1505312980649-fb9f85c13886" },
+            { rank: 24, title: "?脩垢?犖", originalTitle: "Her", director: "?脫晷?瑞???(Spike Jonze)", year: 2013, genre: "瘚芣憤??", description: "摮斤?撣撖怨?AI雿平蝟餌絞???隤蝎皞急??靘撣葉嚗閮犖?抒?摮文??祈釭?扛撖?靽??祕頧???, rating: "9.0", duration: "126 min", img: "1526315600562-b1e15b6513a7" },
+            { rank: 25, title: "?ㄢ擳蔣", originalTitle: "Phantom Thread", director: "靽?繚皝舐?純瑕?敺瑟ㄝ (Paul Thomas Anderson)", year: 2017, genre: "瘚芣憤??", description: "1950撟港誨擃???撣怨???隡港噤銋?嚗??湧??潭?嗚?鞈氬?瘥??訾???蝤函??芷???????????, rating: "8.8", duration: "130 min", img: "1548021815-f0241b124810" },
+            { rank: 26, title: "憓?", originalTitle: "Anatomy of a Fall", director: "瞏結瘙繚璆 (Justine Triet)", year: 2023, genre: "?貊?撽?", description: "銝?游?璅?憭??潛?瘜滬?駁嚗?摨剖???銝阡????航狐嚗憍宏銝剝鈭??舐閬?憒????祈???曉?????瑽?, rating: "8.9", duration: "151 min", img: "1585647347483-223d46241a87" },
+            { rank: 27, title: "?剛鞈?, originalTitle: "Adaptation.", director: "?脫晷?瑞???(Spike Jonze)", year: 2002, genre: "撟賡???", description: "蝺典??亦?繚?井?潛?憟葉憟?雿??神?萎???雿??芸楛撖恍脫蝺典??砌葉嚗芋蝟???神撖艾?銵?銝餅?撣??蝺?, rating: "8.7", duration: "115 min", img: "1507842235661-d820412497b7" },
+            { rank: 28, title: "暺?擉ㄚ", originalTitle: "The Dark Knight", director: "???臬?蝳瑁姥??(Christopher Nolan)", year: 2008, genre: "蝘劂憟劂", description: "頞漣?梢??餃蔣?偌撊箝??純瑁?????敶勗蝯??踹?銝餌儔??銝??????勗??Ｚ??曆誨瘜祥??敺瑞?璆菟?暺???, rating: "9.3", duration: "152 min", img: "1509198397864-d3d56f67e9e2" },
+            { rank: 29, title: "?唳??亙?", originalTitle: "Arrival", director: "銝孵側繚蝬剖?蝝井 (Denis Villeneuve)", year: 2016, genre: "蝘劂憟劂", description: "頞?撣貉?????撟颯誑?拐???瘝井?牧?箸敹??嗆??∩???芯???蝺扯?閮嚗??臬靘???望釣摰?瑞??賡?嚗?, rating: "8.9", duration: "116 min", img: "1451187580241-e7cf37b357e9" },
+            { rank: 30, title: "餈瑕仃?曹漪", originalTitle: "Lost in Translation", director: "?鈭瑟瘜Ｘ? (Sofia Coppola)", year: 2003, genre: "瘚芣憤??", description: "?蝯Ｙ??餃?瑕?撖??曹漪嚗??圈??憍宏?鈭箇?銝剛蕙憭梁??瑕戊?剜?賊???交?敺唾??瘞賊???撖?, rating: "8.8", duration: "1501307560243-7f73111f1eac" },
+            { rank: 31, title: "蟡狩?⊿?", originalTitle: "The Departed", director: "擐砌?繚?脫镼踵 (Martin Scorsese)", year: 2006, genre: "?貊?撽?", description: "?寧楊?芣葛??????脫镼踵撠???箔?朣?瘜Ｗㄚ?扔蝡舀???曇暺鼠?啣蔣銝???????摰?甇?, rating: "8.9", duration: "151 min", img: "1542204172-1cc41f028e3a" },
+            { rank: 32, title: "隡游???憭?, originalTitle: "Bridesmaids", director: "靽?繚鞎餅 (Paul Feig)", year: 2011, genre: "撟賡???", description: "憟單批??敶梢?蝔?嚗??靽?蝚???璈挾嚗??祕撅鈭??誨憟單折撠?瘣餃仃??頛拍奎?剛?瘛勗?????颲??, rating: "8.6", duration: "125 min", img: "1511671782772-52dc479b9451" },
+            { rank: 33, title: "??憸冽", originalTitle: "A Separation", director: "?踵?瑟??? (Asghar Farhadi)", year: 2011, genre: "??", description: "?宏瘞??折“?嗉扛??琿?憪??啁?豢?神?∪倏暺?蝢??摰?誑撟喳祕?鈭箏?撘衣?蝭憟??隡????縑隞啁?甇餌???, rating: "9.0", duration: "123 min", img: "1537444035887-12d46214f044" },
+            { rank: 34, title: "?血?", originalTitle: "WALL-E", director: "摰噸擳純瑕銝寥? (Andrew Stanton)", year: 2008, genre: "???", description: "?桀??舀扔?港?雿??挾?∪??賜?蝝?蝘劂嚗???挾撠?鞎颱蜓蝢押憓情??鈭粹?????奐嚗頝典僑朣∪惜?閰拍?雿?, rating: "9.1", duration: "98 min", img: "1618005182384-a83a8bd57fbe" },
+            { rank: 35, title: "????, originalTitle: "A Prophet", director: "鞈?繚甇羲鈭?(Jacques Audiard)", year: 2010, genre: "??", description: "銝???脤?撟游暺????亙鼠瘣曉?蝡????銝哨????箸??撖?銝甇交郊??粹??????舐蔽?瑞?????, rating: "8.8", duration: "155 min", img: "1506059618417-768f7b7677f5" },
+            { rank: 36, title: "?渲??鈭?, originalTitle: "A Serious Man", director: "?舀?? (Joel & Ethan Coen)", year: 2009, genre: "撟賡???", description: "銝?典?皛輻憭芰?摮賊?餌?暺??嚗?餈唬?雿?之摮豢??摰嗅滬??璆剛?靽∩趕?券撏拙????Ｗ??∟圾摰??賡???隤?甇?, rating: "8.7", duration: "106 min", img: "1489533119039-ced3f2000d70" },
+            { rank: 37, title: "隞乩???摮??", originalTitle: "Call Me by Your Name", director: "?批繚?潮??側隢?(Luca Guadagnino)", year: 2017, genre: "瘚芣憤??", description: "蝢拙之?拍?憭?摮?渲?撠僑蝝硃?????????岫?Ｕ??梯??其?????敹???皜脫??唳扔?渡?摮賊?摨艾?, rating: "8.9", duration: "132 min", img: "1504198453310-9c104e7fec78" },
+            { rank: 38, title: "??憟喳????, originalTitle: "Portrait of a Lady on Fire", director: "?繚撣剖???(C矇line Sciamma)", year: 2019, genre: "瘚芣憤??", description: "憟單批?閬?璆菔撅?摰嗉?敺?鞎湔?撠??冽絲撜嗡???急??嚗??文?思??砍蝢??遛憯??餅楛瘝瘥???瞈??, rating: "9.0", duration: "122 min", img: "1460662110115-ae74ec800a5d" },
+            { rank: 39, title: "瘛戊曈?, originalTitle: "Lady Bird", director: "??憛瑟???(Greta Gerwig)", year: 2017, genre: "??", description: "??祕?犖??憟單??瑟?鈭皜湔??ａ???撠?蝝Ｚ????嚗?遛?除?厭暺?鋆孵?摰園??扛??靘???, rating: "8.8", duration: "94 min", img: "1490312278101-e0e37aef1200" },
+            { rank: 40, title: "銝銝", originalTitle: "Yi Yi", director: "璆噸??(Edward Yang)", year: 2000, genre: "??", description: "璆噸?閰拍??梧???銝??葉?ａ?蝝振摨剜??∠??暑嚗?蝡亙僑??撟氬葉撟游?僑?Ｚ??摮憿??鼓敺?銝璇??賭?瘝喋?, rating: "9.3", duration: "173 min", img: "1516450360452-9312f5e827c3" },
+
+            { rank: 41, title: "?曇????唳銝?", originalTitle: "Am矇lie", director: "撠??株黑瑞??(Jean-Pierre Jeunet)", year: 2001, genre: "瘚芣憤??", description: "銝?脩蝯血迨?典???撌湧???蝡亥店?敶拇????箔??殷????憒??典凝撠?撟餌??孵?皞急?頨恍?瘥??犖嚗蒂?曉????, rating: "8.9", duration: "122 min", img: "1502562086789-92c423d29832" },
+            { rank: 42, title: "憭批葦", originalTitle: "The Master", director: "靽?繚皝舐?純瑕?敺瑟ㄝ (Paul Thomas Anderson)", year: 2012, genre: "??", description: "?拐??脤爸?脣瘚汕瑁正?怏琿?憭急??瑁撠澆??舐?撠?蝣堆??Ｚ?鈭敺仃?賬頨??萄?嚗?雿??唳?啗?摰?瘣??擳??啜?, rating: "8.7", duration: "138 min", img: "1501289548818-4078174f83b8" },
+            { rank: 43, title: "?蔽??, originalTitle: "Oldboy", director: "?渲???(Park Chan-wook)", year: 2003, genre: "?貊?撽?", description: "??敺拐?銝?脖???◤?怠????15撟渡??瑚犖?敺?銵?亥蕭????撱??∪摨?敹??賡??????????潛?撠整?, rating: "9.0", duration: "120 min", img: "1585647347483-223d46241a87" },
+            { rank: 44, title: "敺?嚗??末?﹜", originalTitle: "Once Upon a Time in Hollywood", director: "??繚憛急?隢?(Quentin Tarantino)", year: 2019, genre: "??", description: "??撖怎策憟質?憛ａ???隞??蝯????Ｘ郊隤輸?憛璉桀振????蝜嚗?怠????∟??急????瑚葉摰?甇瑕??韐?, rating: "8.7", duration: "161 min", img: "1513151233553-9a5325e64ac5" },
+            { rank: 45, title: "擳?", originalTitle: "Moneyball", director: "?剖??嗽瑞掖??(Bennett Miller)", year: 2011, genre: "??", description: "銝?舀??敶梧??銝擐??潛絞閮飛???游蝯望?璇誑??琿???葉??靽∪艙???梯??拍??萄??閰拇???, rating: "8.8", duration: "133 min", img: "1508098682722-e99c43a406b2" },
+            { rank: 46, title: "蝢收", originalTitle: "Roma", director: "?暹蝝Ⅹ瑟??(Alfonso Cuar籀n)", year: 2018, genre: "??", description: "暺撖砍??琿?剜撱箏??撖咱撟游??塚?隞亙◢镼踹摰嗅滬撟怠??閫?閬??犖?暑?蝣?蝝???冗?之???, rating: "8.9", duration: "135 min", img: "1471341959040-061c1ec930b7" },
+            { rank: 47, title: "撟曇???", originalTitle: "Almost Famous", director: "?⊿漸?瑕?蝢?(Cameron Crowe)", year: 2000, genre: "??", description: "15甇脣?撟渲????冽?皛暹??楚餈湔??箇????莎?皛踵滯??970撟港誨???璅????頝舀答瞍怨?撠?皛暹??∪?????, rating: "8.7", duration: "122 min", img: "1511156906253-e51c9535070a" },
+            { rank: 48, title: "蝡憸冽", originalTitle: "The Lives of Others", director: "撘???繚鈭典???(Florian Henckel)", year: 2006, genre: "?貊?撽?", description: "?瑟???勗噸?振摰撅?孵極嚗??銝雿?擃雿振??犖??蝔葉嚗?擳撓鋡怎?隤?????嚗??箏?憭扯?脩?????, rating: "9.1", duration: "137 min", img: "1488590528507-24ef24040b2a" },
+            { rank: 49, title: "??亥撌湧???, originalTitle: "Before Sunset", director: "?敺溘瑟?????(Richard Linklater)", year: 2004, genre: "瘚芣憤??", description: "??銋僑撌湧??Ｕ?銝撠?憭??祕撠銝剖???撠葉撟渡?憒亙?????望???怠靘?瘚芣憤嚗?怠???????, rating: "9.1", duration: "80 min", img: "1502602745895-75a7e0825278" },
+            { rank: 50, title: "憭拙?憟?", originalTitle: "Up", director: "敶潛繚????(Pete Docter)", year: 2009, genre: "???", description: "??????潔?撠井憍衣???甇餌???脯?亙歇?臬蔣?脖??舐ㄗ皛?蝬嚗敺?憌?瘞???皞恍成?厭暺?瘣?敹???, rating: "9.0", duration: "96 min", img: "1537444035887-12d46214f044" },
+            { rank: 51, title: "?箏打??撟?, originalTitle: "12 Years a Slave", director: "?脫?憭威琿漸??(Steve McQueen)", year: 2013, genre: "??", description: "銝雿??祈?梁???蝢?鈭箄◤?都?箏打?貊??阡?莎??琿?摰Ｚ????瑞???蝢?甇瑕?暺??????湔???瘛梯???, rating: "8.8", duration: "134 min", img: "1506059618417-768f7b7677f5" },
+            { rank: 52, title: "?秘", originalTitle: "The Favourite", director: "撠斗繚?正??(Yorgos Lanthimos)", year: 2018, genre: "??", description: "???芰??悅撱瑕悅擛亙???雿??瘣曉戊?甈????抒??曇??拍?銝哨?撅?隞支犖敹?銝???撉冽??嗥??洵????, rating: "8.7", duration: "119 min", img: "1460662110115-ae74ec800a5d" },
+            { rank: 53, title: "瘜Ｘ???, originalTitle: "Borat", director: "鞈渡?繚?亦??(Larry Charles)", year: 2006, genre: "撟賡???", description: "?拙?繚?威瑟?拍??賜???蟡??璆萄漲雿??瘝颱?甇?Ⅱ銝誘鈭箏?蝡摰?銵撖行葫嚗?銝??葉?Ｙ冗???賜??Ｗ??, rating: "8.5", duration: "84 min", img: "1511671782772-52dc479b9451" },
+            { rank: 54, title: "蝢?蕙摰?, originalTitle: "Pan's Labyrinth", director: "???怏瑟?? (Guillermo del Toro)", year: 2006, genre: "蝘劂憟劂", description: "撠??瑞?雿??交?镼踵甇瑕?曉祕??????方?撟餃?閮摰???嚗神撠曹?朣??皛踵?敶押?鈭箇?∪?????蝡亥店??, rating: "9.0", duration: "118 min", img: "1501289548818-4078174f83b8" },
+            { rank: 55, title: "?券??", originalTitle: "Inception", director: "???臬?蝳瑁姥??(Christopher Nolan)", year: 2010, genre: "蝘劂憟劂", description: "蝭丐?????箸?頧??蟡???雿?隡噸憭Ｗ?瞏?霅??蝯??游???雿???嚗?撠曄???箸??箏蔣?脫??瑁?隢漲??准?, rating: "9.2", duration: "148 min", img: "1451187580241-e7cf37b357e9" },
+            { rank: 56, title: "???撠暸?", originalTitle: "Punch-Drunk Love", director: "靽?繚皝舐?純瑕?敺瑟ㄝ (Paul Thomas Anderson)", year: 2002, genre: "瘚芣憤??", description: "鈭繚撅勗噸?扔蝵?????瞍嚗ˇ瞍???冗???????楠鈭綽??其??湔??喃??啁???銝剖??啗??閫??, rating: "8.6", duration: "95 min", img: "1504198453310-9c104e7fec78" },
+            { rank: 57, title: "撖萇?嗅振蝘", originalTitle: "Best in Show", director: "???臬?蝳瑁??舐 (Christopher Guest)", year: 2000, genre: "撟賡???", description: "璆萄撌扳??賜???撘?????銝?湧?蝝???魚嚗?銝剔??銝颱犖??蝬釭??嗥???蝔株?雓砍????脩?箝?, rating: "8.4", duration: "90 min", img: "1505312980649-fb9f85c13886" },
+            { rank: 58, title: "?", originalTitle: "Uncut Gems", director: "?拙井餈芸?撘?(Josh & Benny Safdie)", year: 2019, genre: "?貊?撽?", description: "???箇????嗾銋?鈭箇??舐?敶勗璆菟????陪敺?撖嗅??函?蝝毽鈭????萄???悸鞈凋葉嚗?甇交郊皛?甇颱滿瘛望殿??, rating: "8.7", duration: "135 min", img: "1518156677184-c5d1f4045f44" },
+            { rank: 59, title: "憿鈭箇?", originalTitle: "Toni Erdmann", director: "?芸威瑁敺?(Maren Ade)", year: 2016, genre: "撟賡???", description: "敺瑕?蟡?蝷暹?隢瑕????芣??∩????隡閬迎?閰血????車???質?嚗??蕙憭勗頝典???擃??暑銝剔?憟喳???, rating: "8.7", duration: "162 min", img: "1516450360452-9312f5e827c3" },
+            { rank: 60, title: "?脫?????, originalTitle: "Whiplash", director: "?掖?怏瑟瞉日 (Damien Chazelle)", year: 2014, genre: "??", description: "???憯恍?摮貊????擛澆?撣怎?璆萇垢撠捱嚗蝒?翰蝭憟?擙株?瘛??毀蝧葉嚗閮予??隤??臬敹?頝刻??噸????, rating: "9.0", duration: "107 min", img: "1511156906253-e51c9535070a" },
+            { rank: 61, title: "餈賣捏瘥嚗洵1??, originalTitle: "Kill Bill: Vol. 1", director: "??繚憛急?隢?(Quentin Tarantino)", year: 2003, genre: "?貊?撽?", description: "??撠瘞郎靽?砍????儔憭批镼輸??璆菔憭折??游??湔?憡?撣剝??脣?鋆?撅??瑁璈恍???敹怠儔隞???, rating: "8.9", duration: "111 min", img: "1536440136628-849c177e76a1" },
+            { rank: 62, title: "閮?澆?", originalTitle: "Memento", director: "???臬?蝳瑁姥??(Christopher Nolan)", year: 2001, genre: "?貊?撽?", description: "隢曇銝曈湧?鈭箇??????函?仃?嗡蜓閫?閮剖?嚗?冽迤????鈭日??蝺?瑽?閬芾澈擃?撠蜓閫閮???貊?隢瑕??, rating: "8.9", duration: "113 min", img: "1506880018680-2c1a20df7c51" },
+            { rank: 63, title: "?賢?撠?憟?, originalTitle: "Little Miss Sunshine", director: "撘瑞?璉捍瑟??(Jonathan Dayton)", year: 2006, genre: "撟賡???", description: "銝頛???脖???頛?銝撅??仃???芯犖嚗??餃???蝡仿蝢?????急?銝哨?摰儔鈭?暻潭?瘛勗?皞恍成?振鈭箇?蝯?, rating: "8.8", duration: "101 min", img: "1489533119039-ced3f2000d70" },
+            { rank: 64, title: "?批", originalTitle: "Gone Girl", director: "憭扯?繚?砍? (David Fincher)", year: 2014, genre: "?貊?撽?", description: "憭扯??砍?撠隞??憪餉?慦????祈釭??暺?閫?氖摮銝?渲撠瞍?憭梯馱獢?撠?敹?憭恍澆?撏拇蔑嚗??暸??箏??∪戊擳???, rating: "8.9", duration: "149 min", img: "1585647347483-223d46241a87" },
+            { rank: 65, title: "憟扳瘚琿?", originalTitle: "Oppenheimer", director: "???臬?蝳瑁姥??(Christopher Nolan)", year: 2023, genre: "??", description: "隢曇璁桃憟扳?∪??之??摰??脰帘嚗誑銝???蝺漱蝜??敶??嗅???撠晞楛?餌??臬?霅渲痊??抒??踹?餈怠拿??, rating: "9.1", duration: "180 min", img: "1464817739971-14757377f0f7" },
+            { rank: 66, title: "撽??阡?", originalTitle: "Spotlight", director: "皝臬?繚暻亙??(Tom McCarthy)", year: 2015, genre: "??", description: "銝??隤之嚗像撖西??澆?瘜Ｗㄚ??隤踵撠?嚗?雿?雿??嗉?摰?憯?嚗?澆予銝餅????嗆找噩?咱??蝝暺???, rating: "8.9", duration: "128 min", img: "1488590528507-24ef24040b2a" },
+            { rank: 67, title: "憛", originalTitle: "T獺r", director: "?嗅噸繚?脩敺?(Todd Field)", year: 2022, genre: "??", description: "?梁繚撣?芰撜圈扔銋???蝜芯?雿???文璅??潮◢??戊?扳??桀?嚗?雿?甈??脫????祟?仿◢?渲??賜?憯?, rating: "8.8", duration: "158 min", img: "1548021815-f0241b124810" },
+            { rank: 68, title: "?望??", originalTitle: "The Hurt Locker", director: "?梯?麻瑞?潛? (Kathryn Bigelow)", year: 2008, genre: "??", description: "敶勗擐?憟扳?∠?戊撠?雿??⊿撠?隡???港???敶?蝯???啁?憒???鈭箸折?擳??撐??, rating: "8.7", duration: "131 min", img: "1480009119597-2ac29c0de522" },
+            { rank: 69, title: "?桀?銋?", originalTitle: "Under the Skin", director: "?祉?璉捍瑁??瑞? (Jonathan Glazer)", year: 2013, genre: "蝘劂憟劂", description: "???質情?憭?撟颯?繚?祇?璉桅ˇ瞍??亙????抒?憭??嚗閫撖犖憿?銝??剜銝哨??撓?Ｙ??唳????霅?, rating: "8.6", duration: "108 min", img: "1550750827-c91ff7c4424c" },
+            { rank: 70, title: "?犖?輸?, originalTitle: "Let the Right One In", director: "?收?純琿?曉??瑕噸璉?(Tomas Alfredson)", year: 2008, genre: "?貊?撽?", description: "???啣予?芸銝哨???迨?餃?撟渲?蟡??貉?擛澆戊摮拐???蝮寧歇?盲??韐◢?潭扔?嗅?賬帘???瑕?遛銝蝯脫澈摮?, rating: "8.8", duration: "115 min", img: "1502602745895-75a7e0825278" },
+
+            { rank: 71, title: "?予?絲", originalTitle: "Ocean's Eleven", director: "?脰??玲瑞揣敺瑟? (Steven Soderbergh)", year: 2001, genre: "?貊?撽?", description: "憟質?憛ａ?蝝????捆???箏?蝡???蝘???銝?瞏株翮韏瘀?撠陪?獢??銝?渡移蝢??怎?擳?蝘??, rating: "8.7", duration: "116 min", img: "1518156677184-c5d1f4045f44" },
+            { rank: 72, title: "?∠?", originalTitle: "Carol", director: "?嗅噸繚瘚瑟??(Todd Haynes)", year: 2015, genre: "瘚芣憤??", description: "1950撟港誨蝝?嚗??????∠??僑頛鞎典戊?株疏?∪??銝?蝳銝???????敶勗?蝯脩閒?砍?豢澈???潛???脯?, rating: "8.9", duration: "118 min", img: "1514306191717-452ec28c7814" },
+            { rank: 73, title: "??曌?", originalTitle: "Ratatouille", director: "撣?敺溘瑕?敺?(Brad Bird)", year: 2007, genre: "???", description: "?犖鈭箇??舐憌芥?蝢末撖????其??餉???憌丐?喉??湔鈭???嚗?皞急??脰奐鈭?Ｙ?閰???, rating: "9.0", duration: "111 min", img: "1502562086789-92c423d29832" },
+            { rank: 74, title: "甇∟??憟劂?", originalTitle: "The Florida Project", director: "?剜繚鞎? (Sean Baker)", year: 2017, genre: "??", description: "?刻羲憯怠側璅?撠????寞?萎葉嚗?蝢方異?啣閬芸振摨剔?摮拙??⊥??啣?頝厭蝝?鈭桃?蝎瞈暸銝??ㄨ?瘥撉函?蝷暹?鞎批?曉祕??, rating: "8.8", duration: "111 min", img: "1501004318641-e39e6a27e24b" },
+            { rank: 75, title: "????, originalTitle: "Amour", director: "暻亙繚瞍Ｗ??(Michael Haneke)", year: 2012, genre: "??", description: "瞍Ｗ??瑕瘛望???擃?雿?餈唬?撠隡?游振憭怠岫嚗憒餃???憭梯???嚗?憭恍?具??氬※????蝯扔????, rating: "8.9", duration: "127 min", img: "1537444035887-12d46214f044" },
+            { rank: 76, title: "?寥?擃?", originalTitle: "O Brother, Where Art Thou?", director: "?舀?? (Joel & Ethan Coen)", year: 2000, genre: "撟賡???", description: "撠擐砍閰押尼敺瑁魚???930撟港誨撖正镼踵?撌??洵?????末?賜??????單???皛輸?撌港蓮撘摮貊?????, rating: "8.5", duration: "107 min", img: "1511671782772-52dc479b9451" },
+            { rank: 77, title: "慦賜?憭?摰?", originalTitle: "Everything Everywhere All at Once", director: "?振瘞?(Daniel Kwan)", year: 2022, genre: "蝘劂憟劂", description: "撣剜憟扳?∠??曇情蝝?雿?典予擐祈?蝛箇?憭?摰???隤蝔賜?蝚?嚗敹閮?鋆振摨剔?瘥戊隞???萄???∩蜓蝢抵????捆??, rating: "9.0", duration: "139 min", img: "1519074062522-bc2f132e41c4" },
+            { rank: 78, title: "?砍??", originalTitle: "Aftersun", director: "憭??嗽瑕??暹 (Charlotte Wells)", year: 2022, genre: "??", description: "璆萄蝘犖銝??撥??蝘蔣?◢?憭批??戊摮拙???1甇脫???擛梁閬芸?喳摨血???敶勗葆嚗??畾??葦?葉擃??箸????, rating: "8.9", duration: "102 min", img: "1504198453310-9c104e7fec78" },
+            { rank: 79, title: "?璅?, originalTitle: "The Tree of Life", director: "瘜啣急繚擐砍??(Terrence Malick)", year: 2011, genre: "??", description: "璆萄漲摰之?蔣?帘蝭?1950撟港誨敺瑕?銝?振摨剔摮?靽?摰?隤????賣???憯舫?憟??賊???撘犖瘛望????芰??, rating: "8.6", duration: "139 min", img: "1451187580241-e7cf37b357e9" },
+            { rank: 80, title: "?拍?憟喃犖", originalTitle: "Volver", director: "雿拙噸蝢琿?怠???(Pedro Almod籀var)", year: 2006, genre: "??", description: "瞏旨瘣繚?陌?脖蜓瞍??輯憭蝬???敶抬?雓膩镼輻????隞?戊?折撠?畾箝狩擳?撖?敶潭迨?舀????賢??, rating: "8.8", duration: "121 min", img: "1460662110115-ae74ec800a5d" },
+            { rank: 81, title: "暺予曀?, originalTitle: "Black Swan", director: "?游威瑁瘣姥憭急??(Darren Aronofsky)", year: 2010, genre: "?貊?撽?", description: "?剛?撰?箄蕭瘙扔?游?蝢??芣?瘥皛???擳劂閬箄?鈭箸??鈭斤?嚗?憛?繚瘜Ｘ憟鈭?銋??銵瘛??蔣?”瞍?, rating: "8.9", duration: "108 min", img: "1548021815-f0241b124810" },
+            { rank: 82, title: "畾箔犖銝??, originalTitle: "The Act of Killing", director: "蝝鈭瑕尼?祆絲暺?(Joshua Oppenheimer)", year: 2012, genre: "??", description: "??函?????嚗?隢撠澆之撅捏??摮???⊿?誑憟質?憛ａ敶勗耦撘??啁?憌整芋?祉撟渡?畾箸嚗?隤?∩??潔犖瘛梁???, rating: "8.9", duration: "115 min", img: "1506059618417-768f7b7677f5" },
+            { rank: 83, title: "??瘞?", originalTitle: "Inside Llewyn Davis", director: "?舀?? (Joel & Ethan Coen)", year: 2013, genre: "??", description: "銝擐神蝯行??舀帖皞Ｗ???Ｘ????甇擳?雓?????餅?鞎1960撟港誨?砍予??蝝??１憯?摮斤?炳?駁??喟?璇?, rating: "8.9", duration: "104 min", img: "1511156906253-e51c9535070a" },
+            { rank: 84, title: "撽??急", originalTitle: "Melancholia", director: "?繚擐捍瑟???(Lars von Trier)", year: 2011, genre: "蝘劂憟劂", description: "撠扔摨血???漲?炳???瑁情?銝憿撠??啁??豢???擛梯???∪?踹???皛???炳???曉?唳見?像??, rating: "8.7", duration: "135 min", img: "1509114397022-ed747cca3f65" },
+            { rank: 85, title: "?喳?銝餅蝬?, originalTitle: "Anchorman", director: "鈭繚暻亙 (Adam McKay)", year: 2004, genre: "撟賡???", description: "蝢??∪??剛?????撜啜奐??970撟港誨?餉??啗??瘛梯??箇??瑟?銝餌儔嚗?蝚??乩??瘀??芰迂瘚???????, rating: "8.3", duration: "94 min", img: "1536440136628-849c177e76a1" },
+            { rank: 86, title: "?????, originalTitle: "Past Lives", director: "撣剔繚摰?(Celine Song)", year: 2023, genre: "瘚芣憤??", description: "?Ｚ??望?脣飛??蝺??璇姘擐祉??拐犖?券??曉??Ｕ蝝??ｇ??冽蝡園?曇??曉祕鈭箇?銝哨?撖怠停皞急????萇??僑?銋???, rating: "8.7", duration: "105 min", img: "1501307560243-7f73111f1eac" },
+            { rank: 87, title: "擳?擐?莎?擳??曇澈", originalTitle: "The Fellowship of the Ring", director: "敶澆?繚??璉?(Peter Jackson)", year: 2001, genre: "蝘劂憟劂", description: "憟劂?脰帘?∪???陸撅勗???镼輯?∟??急??祕?胯?蝝?銵??????憭扳??瘀?憟?銝剖?銝??偶?縑隞啜?, rating: "9.4", duration: "178 min", img: "1464821836676-e411117400d4" },
+            { rank: 88, title: "?曄?????, originalTitle: "The Gleaners and I", director: "摰旨繚?舫? (Agn癡s Varda)", year: 2000, genre: "???", description: "?唳答瞏桃?瘥???雿V??敶梧?敺?曉誥璉????啣旦?芸楛?冽??葉撠※?敹???蝣???橘?皞急?⊥???, rating: "8.9", duration: "82 min", img: "1478720143983-6f328674b1f5" },
+            { rank: 89, title: "????", originalTitle: "Interstellar", director: "???臬?蝳瑁姥??(Christopher Nolan)", year: 2014, genre: "蝘劂憟劂", description: "蝖祆撱?儔?詨?隢?摮貉??嗅戊瘛望???蝢漱蝜?瘣?蝬剔征??撘?憟??ㄞ暻蝝ｇ?霅?鈭?????蝛輯??征??, rating: "9.2", duration: "169 min", img: "1506703719100-7fa251d110f0" },
+            { rank: 90, title: "蝝?????, originalTitle: "Frances Ha", director: "隢曆?繚瘜Ｘ???(Noah Baumbach)", year: 2012, genre: "??", description: "暺?銝??曆誨蝝?撟渲?鈭箇?瘣餃??????摰???歲?予???璅?撟賡??戊摮抬??典???憭Ｘ?急?銝剔?????, rating: "8.7", duration: "86 min", img: "1550750827-c91ff7c4424c" },
+            { rank: 91, title: "?潛敹?憟?, originalTitle: "Fish Tank", director: "摰噸??繚?輯姥敺?(Andrea Arnold)", year: 2009, genre: "??", description: "?勗?摨惜??15甇脣?憟喟?撖怠祕???瘣餃銝?圈?瘥?摰嗅滬嚗?銵???閬芰?蟡?瑕????伐??Ｙ揣?芣???芣??撟餅???, rating: "8.6", duration: "117 min", img: "1505312980649-fb9f85c13886" },
+            { rank: 92, title: "蟡狩?啣ㄚ", originalTitle: "Gladiator", director: "?瑕繚?脰 (Ridley Scott)", year: 2000, genre: "??", description: "蝢收撣?撠?瘛芰閫洛憯怒蒂?函奎??游?蝭∩??游?敺拐??閰拙楊雿憯舐??單???暺漸瘚迎??遣?文?脰帘???氬?, rating: "9.1", duration: "155 min", img: "1518709268805-4e9042af9f23" },
+            { rank: 93, title: "?券??", originalTitle: "Michael Clayton", director: "?勗側繚?蝢? (Tony Gilroy)", year: 2007, genre: "?貊?撽?", description: "?瑕頂蝖祆???敺????瘝鄞瑕??側憌暹?撠??踹之鞎∪???撣思????嗆畾???????刻?亥?????銝剔???????, rating: "8.5", duration: "120 min", img: "1506880018680-2c1a20df7c51" },
+            { rank: 94, title: "??勗?", originalTitle: "Minority Report", director: "?脰??玲瑕?寞? (Steven Spielberg)", year: 2002, genre: "蝘劂憟劂", description: "蝘劂??????皞閮?其???閮鈭粹甇Ｙ蝵芰??芯?嚗撅?瑁撌梯◤???箸捏鈭箇嚗????游挪?質???望?敹?????, rating: "8.8", duration: "145 min", img: "1509198397864-d3d56f67e9e2" },
+            { rank: 95, title: "銝?銝???鈭?, originalTitle: "The Worst Person in the World", director: "撠斗??瑟???(Joachim Trier)", year: 2021, genre: "瘚芣憤??", description: "銝?甇脣戊?折撠瘨胯撈靘嗉??芣?????株?餈瑟?嚗?征?趙憟??唳?鈭箇???Ｖ葉嚗澈?恐??蝣箏??扼??臭犖??撣豢???, rating: "8.8", duration: "128 min", img: "1502602745895-75a7e0825278" },
+            { rank: 96, title: "暺措", originalTitle: "Black Panther", director: "?繚摨急??(Ryan Coogler)", year: 2018, genre: "蝘劂憟劂", description: "瞍怠??餃蔣摰???瑟楛摨艾蒂擐漲?亙?憟扳?⊥?雿喳蔣??雿???瘣脫靘蜓蝢拍?摮賂?瘛勗惜?Ｚ?畾?銝餌儔?風?脣?瑁?摮斤?銝餌儔??, rating: "8.5", duration: "134 min", img: "1471341959040-061c1ec930b7" },
+            { rank: 97, title: "?啣?撘?", originalTitle: "Gravity", director: "?暹蝝Ⅹ瑟??(Alfonso Cuar籀n)", year: 2013, genre: "蝘劂憟劂", description: "璆菔?迨蝯?閬死憟????瑕???憌暹?????瘚?祉?靽勗?憭芰征???芸嚗?璆菔?琿?哨?撅鈭粹?瘙?????蝳柴?, rating: "8.9", duration: "91 min", img: "1451187580241-e7cf37b357e9" },
+            { rank: 98, title: "?啁?鈭?, originalTitle: "Grizzly Man", director: "??繚?瑞揣 (Werner Herzog)", year: 2005, genre: "??", description: "?瑞揣蟡?蝝??嚗祟閬?雿??梁???靽風??雿???暑13撟湔?蝯◤???研閮?憭扯?嗅?琿??抒?蝢?鈭粹???敹萸?, rating: "8.7", duration: "103 min", img: "1480009119597-2ac29c0de522" },
+            { rank: 99, title: "畾箔犖?", originalTitle: "Memories of Murder", director: "憟???(Bong Joon Ho)", year: 2003, genre: "?貊?撽?", description: "??敶勗??之?舐蔽???寧楊?芰?撖阡?畾箸?獢?銝郎撖?瞍Ｗ?霅血??典??瑁???銝剛蕭蝝Ｙ??賂?蝯偏???⊿?蟡??澆???, rating: "9.2", duration: "132 min", img: "1585647347483-223d46241a87" },
+            { rank: 100, title: "頞?憯?, originalTitle: "Superbad", director: "?繚?拇???(Greg Mottola)", year: 2007, genre: "撟賡???", description: "擃葉?璆剜晷撠?甇∩????Ｘ?霈犖?扯憭抒???靽畾萄?????McLovin?喳?嚗??扔?嗥??舀澈??甇駁豪???雿?, rating: "8.6", duration: "113 min", img: "1511671782772-52dc479b9451" }
+        ];
+
+        function MoviePoster({ imgId, title, rank, size = "normal" }) {
+            const [imageLoaded, setImageLoaded] = useState(false);
+            const [hasError, setHasError] = useState(false);
+            const imgUrl = `https://images.unsplash.com/photo-${imgId || '1536440136628-849c177e76a1'}?auto=format&fit=crop&w=500&q=80`;
+
+            const placeholderGradients = [
+                "from-stone-900 to-neutral-800",
+                "from-amber-950 to-stone-900",
+                "from-emerald-950 to-slate-900",
+                "from-red-950 to-zinc-900",
+                "from-blue-950 to-neutral-900"
+            ];
+            const gradientClass = placeholderGradients[rank % placeholderGradients.length];
+
+            return (
+                <div className={`relative aspect-[2/3] w-full rounded-lg overflow-hidden bg-gradient-to-b ${gradientClass} shadow-md border border-black/20 select-none group/pst`}>
+                    {/* Criterion styled header strip */}
+                    <div className="absolute top-0 inset-x-0 h-6 bg-black/40 backdrop-blur-sm z-10 flex items-center justify-between px-2 text-[8px] tracking-[0.2em] font-bold text-amber-500 uppercase">
+                        <span>Criterion NYT Edition</span>
+                        <span>#{rank}</span>
+                    </div>
+
+                    {/* Image Layer */}
+                    {!hasError && (
+                        <img 
+                            src={imgUrl} 
+                            alt={title}
+                            onLoad={() => setImageLoaded(true)}
+                            onError={() => setHasError(true)}
+                            className={`absolute inset-0 w-full h-full object-cover transition-all duration-700 ease-out group-hover/pst:scale-110 ${imageLoaded ? 'opacity-70 scale-100' : 'opacity-0'}`}
+                            loading="lazy"
+                        />
+                    )}
+
+                    {/* Stylized Film Grain Layer */}
+                    <div className="absolute inset-0 bg-black/15 pointer-events-none mix-blend-overlay"></div>
+
+                    {/* Criterion Gold Rank Badge */}
+                    <div className="absolute top-8 left-3 z-20 bg-gradient-to-br from-amber-300 via-amber-400 to-amber-600 border border-amber-200/50 shadow-lg shadow-black/40 text-black font-black w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center text-xs sm:text-sm font-serif">
+                        {rank}
+                    </div>
+
+                    {/* Typography/Title Overlay representing premium film posters */}
+                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/85 to-transparent p-3 pt-12 flex flex-col justify-end text-left">
+                        <h4 className="font-serif text-sm sm:text-base md:text-lg font-black text-white leading-tight mb-1 group-hover/pst:text-amber-300 transition-colors line-clamp-2">
+                            {title}
+                        </h4>
+                        <div className="flex items-center gap-2 mt-1">
+                            <div className="w-1.5 h-1.5 bg-amber-500 rounded-full animate-pulse"></div>
+                            <span className="text-[9px] sm:text-[10px] text-amber-400 font-bold tracking-widest uppercase">MASTERPIECE</span>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [searchTerm, setSearchTerm] = useState("");
+            const [selectedGenre, setSelectedGenre] = useState("All");
+            const [selectedDecade, setSelectedDecade] = useState("All");
+            const [sortBy, setSortBy] = useState("rank-asc");
+            const [viewMode, setViewMode] = useState("poster"); // "poster" or "editorial"
+            const [watchlist, setWatchlist] = useState(() => {
+                const saved = localStorage.getItem("nyt_movies_watchlist_v2");
+                return saved ? JSON.parse(saved) : [];
+            });
+            const [currentCarousel, setCurrentCarousel] = useState(0);
+            const [isDark, setIsDark] = useState(false);
+            
+            // Popups
+            const [showQuiz, setShowQuiz] = useState(false);
+            const [showRandomizer, setShowRandomizer] = useState(false);
+            const [selectedDetailMovie, setSelectedDetailMovie] = useState(null); // Click to open film details
+
+            // Quiz States
+            const [quizStep, setQuizStep] = useState(0);
+            const [quizAnswers, setQuizAnswers] = useState({});
+            const [quizResults, setQuizResults] = useState([]);
+            const [highlightedMovieId, setHighlightedMovieId] = useState(null);
+            
+            // Randomizer state
+            const [randomMovie, setRandomMovie] = useState(null);
+            const [isSpinning, setIsSpinning] = useState(false);
+            const [spinTitle, setSpinTitle] = useState("");
+            
+            // Notification toast
+            const [toast, setToast] = useState({ show: false, message: "" });
+
+            // Initialize theme on mount
+            useEffect(() => {
+                if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                    setIsDark(true);
+                    document.documentElement.classList.add('dark');
+                }
+            }, []);
+
+            const toggleTheme = () => {
+                setIsDark(!isDark);
+                if (!isDark) {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+            };
+
+            // Custom Toast Helper
+            const showToast = (message) => {
+                setToast({ show: true, message });
+                setTimeout(() => {
+                    setToast({ show: false, message: "" });
+                }, 3000);
+            };
+
+            // Watchlist Handler
+            const toggleWatchlist = (movie, e) => {
+                if (e) e.stopPropagation(); // Avoid triggering details modal
+                let updated;
+                if (watchlist.some(item => item.rank === movie.rank)) {
+                    updated = watchlist.filter(item => item.rank !== movie.rank);
+                    showToast(`撌脣?蝘皜蝘駁嚗?{movie.title}?);
+                } else {
+                    updated = [...watchlist, movie];
+                    showToast(`撌脣??亦??踵??殷???{movie.title}?);
+                }
+                setWatchlist(updated);
+                localStorage.setItem("nyt_movies_watchlist_v2", JSON.stringify(updated));
+            };
+
+            // Carousel Auto Play for top banner
+            useEffect(() => {
+                const timer = setInterval(() => {
+                    if (!showQuiz && !showRandomizer && !selectedDetailMovie) {
+                        setCurrentCarousel(prev => (prev + 1) % 5);
+                    }
+                }, 6000);
+                return () => clearInterval(timer);
+            }, [showQuiz, showRandomizer, selectedDetailMovie]);
+
+            // Filter & Sort logic
+            const filteredMovies = useMemo(() => {
+                return moviesDatabase.filter(movie => {
+                    const matchesSearch = 
+                        movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        movie.originalTitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        movie.director.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        movie.year.toString().includes(searchTerm);
+                    
+                    const matchesGenre = selectedGenre === "All" || movie.genre === selectedGenre;
+                    
+                    let matchesDecade = true;
+                    if (selectedDecade === "2000s") {
+                        matchesDecade = movie.year >= 2000 && movie.year < 2010;
+                    } else if (selectedDecade === "2010s") {
+                        matchesDecade = movie.year >= 2010 && movie.year < 2020;
+                    } else if (selectedDecade === "2020s") {
+                        matchesDecade = movie.year >= 2020;
+                    }
+
+                    return matchesSearch && matchesGenre && matchesDecade;
+                }).sort((a, b) => {
+                    if (sortBy === "rank-asc") return a.rank - b.rank;
+                    if (sortBy === "rank-desc") return b.rank - a.rank;
+                    if (sortBy === "year-desc") return b.year - a.year;
+                    if (sortBy === "year-asc") return a.year - b.year;
+                    if (sortBy === "rating-desc") return parseFloat(b.rating || "0") - parseFloat(a.rating || "0");
+                    return 0;
+                });
+            }, [searchTerm, selectedGenre, selectedDecade, sortBy]);
+
+            const quizQuestions = [
+                {
+                    id: "mood",
+                    question: "隞予?????敶梁?閮湔??荔?",
+                    options: [
+                        { label: "?單楛?交楛?餅????質?鈭箸?, value: "thoughtful", icon: "fa-brain" },
+                        { label: "餈賣????箇?憌?嚗?撽?蝜??貊?", value: "thrilling", icon: "fa-bolt" },
+                        { label: "?閬◤?祥?????湔答瞍怎???", value: "romantic", icon: "fa-heart" },
+                        { label: "?芣憭抒?銝?氬擛??矽??瘣?, value: "light", icon: "fa-face-laugh-beam" }
+                    ]
+                },
+                {
+                    id: "pacing",
+                    question: "雿?憟賭?暻潭見?敶望?鈭?憟?",
+                    options: [
+                        { label: "蝝啁?Ｙ?嚗?閬?銵扼??質??⊿蝢?", value: "slow", icon: "fa-hourglass-half" },
+                        { label: "擃蔭餈剛絲嚗?蝭蝺?嚗?蝘銝??", value: "fast", icon: "fa-forward" }
+                    ]
+                },
+                {
+                    id: "style",
+                    question: "?刻?閬箔?嚗??游?甈??嚗?,
+                    options: [
+                        { label: "?瑟??函憟劂銝?閫??撖怠祕?扔?渡??, value: "fantasy", icon: "fa-wand-magic-sparkles" },
+                        { label: "撖怠祕蝖祆??楛?交閮冗???祕銝??神??, value: "realistic", icon: "fa-camera" }
+                    ]
+                }
+            ];
+
+            const handleQuizAnswer = (questionId, value) => {
+                const updated = { ...quizAnswers, [questionId]: value };
+                setQuizAnswers(updated);
+                
+                if (quizStep < quizQuestions.length - 1) {
+                    setQuizStep(prev => prev + 1);
+                } else {
+                    calculateQuizResults(updated);
+                    setQuizStep(prev => prev + 1);
+                }
+            };
+
+            const calculateQuizResults = (answers) => {
+                let pool = [...moviesDatabase];
+
+                if (answers.mood === "thrilling") {
+                    pool = pool.filter(m => m.genre === "?貊?撽?" || m.originalTitle === "??暻交嚗??" || m.originalTitle === "?券??");
+                } else if (answers.mood === "romantic") {
+                    pool = pool.filter(m => m.genre === "瘚芣憤??");
+                } else if (answers.mood === "light") {
+                    pool = pool.filter(m => m.genre === "撟賡???");
+                } else {
+                    pool = pool.filter(m => m.genre === "??" || m.genre === "???");
+                }
+
+                if (answers.pacing === "fast") {
+                    pool = pool.filter(m => ["1", "8", "10", "11", "20", "28", "31", "34", "43", "55", "58", "60", "61", "64", "71", "77", "81", "89", "94", "100"].includes(m.rank.toString()) || pool.length < 5);
+                } else {
+                    pool = pool.filter(m => !["11", "20", "31", "58", "61", "100"].includes(m.rank.toString()) || pool.length < 5);
+                }
+
+                if (answers.style === "fantasy") {
+                    const fantasyPool = pool.filter(m => m.genre === "蝘劂憟劂" || m.genre === "???");
+                    if (fantasyPool.length >= 3) pool = fantasyPool;
+                } else {
+                    const realisticPool = pool.filter(m => m.genre === "??" || m.genre === "?貊?撽?" || m.genre === "瘚芣憤??");
+                    if (realisticPool.length >= 3) pool = realisticPool;
+                }
+
+                const results = pool.slice(0, 3);
+                setQuizResults(results);
+                
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 100,
+                        spread: 70,
+                        origin: { y: 0.6 }
+                    });
+                }, 100);
+            };
+
+            const resetQuiz = () => {
+                setQuizStep(0);
+                setQuizAnswers({});
+                setQuizResults([]);
+            };
+
+            const triggerRandomizer = () => {
+                setIsSpinning(true);
+                setShowRandomizer(true);
+                let duration = 2500;
+                let intervalTime = 60;
+                let elapsed = 0;
+
+                const spinInterval = setInterval(() => {
+                    const tempRandom = moviesDatabase[Math.floor(Math.random() * moviesDatabase.length)];
+                    setSpinTitle(tempRandom.title);
+                    elapsed += intervalTime;
+                    
+                    if (elapsed >= duration) {
+                        clearInterval(spinInterval);
+                        const finalRandom = moviesDatabase[Math.floor(Math.random() * moviesDatabase.length)];
+                        setRandomMovie(finalRandom);
+                        setIsSpinning(false);
+                        
+                        confetti({
+                            particleCount: 120,
+                            spread: 80,
+                            colors: ['#c5a059', '#ffffff', '#121212']
+                        });
+                    }
+                }, intervalTime);
+            };
+
+            const jumpToMovie = (rank) => {
+                const element = document.getElementById(`movie-${rank}`);
+                if (element) {
+                    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    setHighlightedMovieId(rank);
+                    setTimeout(() => {
+                        setHighlightedMovieId(null);
+                    }, 4000);
+                }
+            };
+
+            const stats = useMemo(() => {
+                const directorCounts = {};
+                const decadeCounts = { "2000s": 0, "2010s": 0, "2020s": 0 };
+                const genreCounts = {};
+
+                moviesDatabase.forEach(m => {
+                    const dirName = m.director.split(" (")[0];
+                    directorCounts[dirName] = (directorCounts[dirName] || 0) + 1;
+
+                    if (m.year >= 2000 && m.year < 2010) decadeCounts["2000s"]++;
+                    else if (m.year >= 2010 && m.year < 2020) decadeCounts["2010s"]++;
+                    else if (m.year >= 2020) decadeCounts["2020s"]++;
+
+                    genreCounts[m.genre] = (genreCounts[m.genre] || 0) + 1;
+                });
+
+                const topDirectors = Object.entries(directorCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5);
+
+                return { topDirectors, decadeCounts, genreCounts };
+            }, []);
+
+            return (
+                <div className="min-h-screen flex flex-col selection:bg-amber-100 selection:text-amber-950">
+                    {/* Top sticky navbar */}
+                    <nav className="border-b nyt-border bg-white/95 dark:bg-[#121212]/95 backdrop-blur sticky top-0 z-30 transition-all duration-300">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                            <div className="flex justify-between h-16 items-center">
+                                <div className="flex items-center gap-2 cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+                                    <span className="font-serif text-2xl lg:text-3xl font-extrabold tracking-tight select-none flex items-center gap-3">
+                                        <span className="bg-[#111111] text-[#fcfbf9] dark:bg-[#f3f4f6] dark:text-[#111111] px-2.5 py-1 rounded font-black text-xl lg:text-2xl font-serif">T</span>
+                                        <span className="hidden sm:inline font-serif font-black italic tracking-tighter">The New York Times</span>
+                                    </span>
+                                </div>
+                                
+                                <div className="flex items-center gap-3">
+                                    <button 
+                                        onClick={() => setShowQuiz(true)} 
+                                        className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white px-4 py-2 rounded-full text-xs font-bold tracking-wider transition-all shadow-sm active:scale-95"
+                                    >
+                                        <i className="fa-solid fa-wand-magic-sparkles"></i> 
+                                        <span className="hidden md:inline">撠惇?餃蔣皜祇?</span>
+                                        <span className="md:hidden">?暸敶?/span>
+                                    </button>
+
+                                    <button 
+                                        onClick={triggerRandomizer} 
+                                        className="flex items-center gap-2 bg-neutral-900 text-white dark:bg-[#f3f4f6] dark:text-[#111111] hover:opacity-90 px-4 py-2 rounded-full text-xs font-bold tracking-wider transition-all shadow-sm active:scale-95"
+                                    >
+                                        <i className="fa-solid fa-shuffle"></i> 
+                                        <span>?刻?芷嚗?/span>
+                                    </button>
+
+                                    <button 
+                                        onClick={toggleTheme} 
+                                        className="p-2 rounded-full hover:bg-neutral-150 dark:hover:bg-neutral-800 text-neutral-600 dark:text-neutral-300 transition-all"
+                                        aria-label="Toggle theme"
+                                    >
+                                        {isDark ? <i className="fa-solid fa-sun text-lg"></i> : <i className="fa-solid fa-moon text-lg"></i>}
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </nav>
+
+                    {/* Header Banner - Editorial style */}
+                    <header className="border-b nyt-border bg-white dark:bg-[#121212] py-10 lg:py-14 px-4 transition-colors duration-300 text-center">
+                        <div className="max-w-4xl mx-auto">
+                            <p className="text-[11px] tracking-[0.3em] uppercase font-black text-amber-600 dark:text-amber-400 mb-3">NYT Special Editorial Feature</p>
+                            <h1 className="font-serif text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight mb-4 leading-tight">
+                                21 銝??曉之?餃蔣?
+                            </h1>
+                            <p className="font-serif italic text-lg sm:text-xl text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto leading-relaxed mt-4">
+                                ???芣?蔣?????湔敶Ｗ??嗡誨?雁??摮豢撅??100 ?典??箔??賭?雿????寥敶勗?仿瘛勗閰??絲?晞?                            </p>
+                            <div className="flex justify-center items-center gap-4 text-xs text-neutral-500 dark:text-neutral-400 font-bold tracking-widest uppercase my-5">
+                                <span>Compiled by Critics</span>
+                                <span className="w-1.5 h-1.5 bg-neutral-400 rounded-full"></span>
+                                <span>Interactive Film Guide</span>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Top 5 Hall of Fame Feature */}
+                    <section className="bg-neutral-950 text-white py-12 px-4 relative overflow-hidden">
+                        <div className="absolute inset-0 opacity-10 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+                        <div className="max-w-7xl mx-auto relative z-10">
+                            <h2 className="font-serif text-lg sm:text-2xl text-amber-400 font-bold tracking-wider mb-8 text-center flex items-center justify-center gap-3">
+                                <i className="fa-solid fa-crown text-amber-400"></i> THE HALL OF FAME 繚 ??憭扳挪??雿?                            </h2>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                                {/* Left Featured Carousel Card */}
+                                <div className={`lg:col-span-7 rounded-2xl bg-gradient-to-br ${moviesDatabase[currentCarousel].color} p-6 sm:p-10 min-h-[420px] flex flex-col justify-between border border-white/10 transition-all duration-1000 transform hover:scale-[1.01]`}>
+                                    <div>
+                                        <div className="flex items-center gap-3 mb-4">
+                                            <span className="bg-amber-400 text-black font-black text-xs px-3 py-1 rounded-full">NO.{moviesDatabase[currentCarousel].rank}</span>
+                                            <span className="text-xs uppercase tracking-widest text-neutral-300 font-bold">{moviesDatabase[currentCarousel].genre}</span>
+                                        </div>
+                                        <h3 className="text-3xl sm:text-4xl lg:text-5xl font-serif font-black mb-1">{moviesDatabase[currentCarousel].title}</h3>
+                                        <p className="text-sm font-sans text-neutral-400 italic mb-5">{moviesDatabase[currentCarousel].originalTitle}</p>
+                                        <p className="text-sm lg:text-base text-neutral-200 leading-relaxed max-w-xl font-serif">
+                                            {moviesDatabase[currentCarousel].description}
+                                        </p>
+                                    </div>
+
+                                    <div className="border-t border-white/10 pt-6 mt-6 flex flex-wrap justify-between items-center gap-4">
+                                        <div className="text-xs text-neutral-400">
+                                            <p><span className="font-semibold text-neutral-200">撠?:</span> {moviesDatabase[currentCarousel].director}</p>
+                                            <p className="mt-1"><span className="font-semibold text-neutral-200">撟港遢:</span> {moviesDatabase[currentCarousel].year}撟?/p>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <button 
+                                                onClick={(e) => toggleWatchlist(moviesDatabase[currentCarousel], e)} 
+                                                className="bg-white/10 hover:bg-white/20 p-3 rounded-full transition-all text-xs flex items-center gap-2 border border-white/5 active:scale-95"
+                                            >
+                                                <i className={`fa-heart ${watchlist.some(w => w.rank === moviesDatabase[currentCarousel].rank) ? 'fa-solid text-red-500' : 'fa-regular'}`}></i>
+                                                {watchlist.some(w => w.rank === moviesDatabase[currentCarousel].rank) ? '撌脣??? : '?嗉?'}
+                                            </button>
+                                            <button 
+                                                onClick={() => setSelectedDetailMovie(moviesDatabase[currentCarousel])} 
+                                                className="bg-amber-400 hover:bg-amber-500 text-black px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition-all active:scale-95"
+                                            >
+                                                ?仿摰敶梯? <i className="fa-solid fa-arrow-right ml-1"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Right Navigation Menu */}
+                                <div className="lg:col-span-5 flex flex-col gap-3">
+                                    {moviesDatabase.slice(0, 5).map((m, idx) => (
+                                        <button 
+                                            key={m.rank}
+                                            onClick={() => setCurrentCarousel(idx)}
+                                            className={`w-full flex items-center gap-4 p-4 rounded-xl text-left transition-all duration-300 ${currentCarousel === idx ? 'bg-white/10 border-l-4 border-amber-400 translate-x-1' : 'bg-transparent border border-white/5 hover:bg-white/5'}`}
+                                        >
+                                            <span className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold font-serif ${currentCarousel === idx ? 'bg-amber-400 text-black' : 'bg-white/10 text-neutral-450'}`}>
+                                                {m.rank}
+                                            </span>
+                                            <div>
+                                                <h4 className="font-semibold text-sm line-clamp-1">{m.title}</h4>
+                                                <p className="text-xs text-neutral-400 mt-0.5">{m.director} 繚 {m.year}</p>
+                                            </div>
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* Interactive Body Grid */}
+                    <main className="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 w-full grid grid-cols-1 lg:grid-cols-12 gap-8">
+                        
+                        {}
+                        <aside className="lg:col-span-3 space-y-6">
+                            
+                            {/* Fast actions on mobile */}
+                            <div className="grid grid-cols-2 gap-3 lg:hidden">
+                                <button 
+                                    onClick={() => setShowQuiz(true)} 
+                                    className="flex flex-col items-center justify-center p-4 bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-xl text-center shadow-sm"
+                                >
+                                    <i className="fa-solid fa-wand-magic-sparkles text-xl mb-1"></i>
+                                    <span className="text-xs font-bold">?賭葉瘜典??餃蔣皜祇?</span>
+                                </button>
+                                <button 
+                                    onClick={triggerRandomizer} 
+                                    className="flex flex-col items-center justify-center p-4 bg-neutral-900 text-white dark:bg-neutral-800 rounded-xl text-center shadow-sm"
+                                >
+                                    <i className="fa-solid fa-shuffle text-xl mb-1"></i>
+                                    <span className="text-xs font-bold">?冽??刻</span>
+                                </button>
+                            </div>
+
+                            {/* Main Filter Panel */}
+                            <div className="bg-white dark:bg-[#16161a] p-6 rounded-2xl border nyt-border shadow-sm space-y-5 sticky top-20">
+                                <h3 className="font-serif font-bold text-lg border-b nyt-border pb-3 flex items-center justify-between">
+                                    <span>?箸?蕪蝭拚</span>
+                                    <i className="fa-solid fa-sliders text-amber-500 text-xs"></i>
+                                </h3>
+
+                                {/* Search Input */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        ???餃蔣 / 撠? / 撟港遢
+                                    </label>
+                                    <div className="relative">
+                                        <input 
+                                            type="text" 
+                                            placeholder="頛詨銝剛????瞍?.."
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="w-full pl-9 pr-4 py-2 text-sm bg-neutral-50 dark:bg-neutral-900 border nyt-border rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 text-neutral-800 dark:text-neutral-100"
+                                        />
+                                        <i className="fa-solid fa-magnifying-glass absolute left-3 top-3 text-neutral-450 text-xs"></i>
+                                        {searchTerm && (
+                                            <button onClick={() => setSearchTerm("")} className="absolute right-3 top-2.5 text-neutral-450 hover:text-neutral-600 text-sm">
+                                                <i className="fa-solid fa-xmark"></i>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Genre Selector */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        ?餃蔣憿?
+                                    </label>
+                                    <select 
+                                        value={selectedGenre} 
+                                        onChange={(e) => setSelectedGenre(e.target.value)}
+                                        className="w-full px-3 py-2 text-sm bg-neutral-50 dark:bg-neutral-900 border nyt-border rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500"
+                                    >
+                                        <option value="All">?券憿?</option>
+                                        <option value="??">?? (Drama)</option>
+                                        <option value="?貊?撽?">?貊?撽? (Thriller)</option>
+                                        <option value="瘚芣憤??">瘚芣憤?? (Romance)</option>
+                                        <option value="蝘劂憟劂">蝘劂憟劂 (Sci-Fi)</option>
+                                        <option value="撟賡???">撟賡??? (Comedy)</option>
+                                        <option value="???">??? (Animation)</option>
+                                    </select>
+                                </div>
+
+                                {/* Decade Selector */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        銝?撟港誨
+                                    </label>
+                                    <div className="flex flex-wrap gap-2">
+                                        {["All", "2000s", "2010s", "2020s"].map(dec => (
+                                            <button
+                                                key={dec}
+                                                onClick={() => setSelectedDecade(dec)}
+                                                className={`px-3 py-1.5 rounded-full text-xs font-semibold tracking-wider border transition-all ${selectedDecade === dec ? 'bg-neutral-900 text-white border-neutral-900 dark:bg-white dark:text-black dark:border-white' : 'bg-transparent border-neutral-200 dark:border-neutral-850 text-neutral-600 dark:text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-800'}`}
+                                            >
+                                                {dec === "All" ? "銝?" : dec}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Sorting Rules */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        ????
+                                    </label>
+                                    <select 
+                                        value={sortBy} 
+                                        onChange={(e) => setSortBy(e.target.value)}
+                                        className="w-full px-3 py-2 text-sm bg-neutral-50 dark:bg-neutral-900 border nyt-border rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 animate-fadeIn"
+                                    >
+                                        <option value="rank-asc">???梢??唬? (1 ??100)</option>
+                                        <option value="rank-desc">???曹??圈? (100 ??1)</option>
+                                        <option value="year-desc">撟港遢?望?啗?</option>
+                                        <option value="year-asc">撟港遢?梯??唳</option>
+                                    </select>
+                                </div>
+
+                                {/* View Mode Toggle */}
+                                <div>
+                                    <label className="block text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 mb-2">
+                                        憿舐內璅∪?
+                                    </label>
+                                    <div className="grid grid-cols-2 gap-2 bg-neutral-50 dark:bg-neutral-900 p-1 rounded-lg border nyt-border">
+                                        <button 
+                                            onClick={() => setViewMode("poster")} 
+                                            className={`py-1.5 rounded text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${viewMode === "poster" ? 'bg-white dark:bg-neutral-800 shadow-sm text-amber-500' : 'text-neutral-500'}`}
+                                        >
+                                            <i className="fa-solid fa-file-image"></i>璅?瘚瑕
+                                        </button>
+                                        <button 
+                                            onClick={() => setViewMode("editorial")} 
+                                            className={`py-1.5 rounded text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${viewMode === "editorial" ? 'bg-white dark:bg-neutral-800 shadow-sm text-amber-500' : 'text-neutral-500'}`}
+                                        >
+                                            <i className="fa-solid fa-newspaper"></i>?勗?皜
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Clear Filters */}
+                                {(searchTerm || selectedGenre !== "All" || selectedDecade !== "All") && (
+                                    <button 
+                                        onClick={() => {
+                                            setSearchTerm("");
+                                            setSelectedGenre("All");
+                                            setSelectedDecade("All");
+                                            setSortBy("rank-asc");
+                                        }}
+                                        className="w-full py-2 bg-neutral-100 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 text-xs font-bold rounded-lg transition-all"
+                                    >
+                                        皜?券?蕪璇辣
+                                    </button>
+                                )}
+                            </div>
+
+                            {/* Watchlist Section */}
+                            <div className="bg-white dark:bg-[#16161a] p-6 rounded-2xl border nyt-border shadow-sm">
+                                <h3 className="font-serif font-bold text-lg border-b nyt-border pb-3 flex items-center justify-between mb-4">
+                                    <span>??蝘? ({watchlist.length})</span>
+                                    <i className="fa-solid fa-heart text-red-500 animate-pulse"></i>
+                                </h3>
+                                {watchlist.length === 0 ? (
+                                    <p className="text-xs text-neutral-400 py-4 text-center font-serif italic">
+                                        ???芸??亙蔣???賊敶勗??????璅?撱箇??函?蝘犖?暹????                                    </p>
+                                ) : (
+                                    <div className="max-h-60 overflow-y-auto space-y-3">
+                                        {watchlist.map(movie => (
+                                            <div key={movie.rank} className="flex items-center justify-between gap-2 p-2 hover:bg-neutral-50 dark:hover:bg-neutral-900 rounded-lg group transition-all">
+                                                <button 
+                                                    onClick={() => setSelectedDetailMovie(movie)}
+                                                    className="flex items-center gap-2 text-left flex-grow"
+                                                >
+                                                    <span className="text-xs font-serif font-bold text-amber-500">#{movie.rank}</span>
+                                                    <span className="text-xs font-semibold line-clamp-1 group-hover:text-amber-500 transition-all">{movie.title}</span>
+                                                </button>
+                                                <button 
+                                                    onClick={(e) => toggleWatchlist(movie, e)}
+                                                    className="text-neutral-300 hover:text-red-500 p-1 text-xs"
+                                                    title="蝘駁"
+                                                >
+                                                    <i className="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </aside>
+
+                        {}
+                        <section className="lg:col-span-9 space-y-6">
+
+                            {/* Grid jumper */}
+                            <div className="bg-white dark:bg-[#16161a] p-5 rounded-2xl border nyt-border shadow-sm">
+                                <div className="flex items-center justify-between mb-4">
+                                    <h3 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400 flex items-center gap-2">
+                                        <i className="fa-solid fa-list-ol text-amber-500"></i>
+                                        1-100 敹恍?歲頧?                                    </h3>
+                                    <span className="text-[10px] text-neutral-450">暺敹恍???雿閰脤敶?/span>
+                                </div>
+                                <div className="grid grid-cols-10 gap-1.5 max-h-32 overflow-y-auto p-1.5 bg-neutral-50 dark:bg-neutral-900 rounded-xl border border-black/5 dark:border-white/5">
+                                    {Array.from({ length: 100 }, (_, i) => i + 1).map(num => {
+                                        const isInWatchlist = watchlist.some(w => w.rank === num);
+                                        return (
+                                            <button
+                                                key={num}
+                                                onClick={() => jumpToMovie(num)}
+                                                className={`aspect-square flex items-center justify-center text-[11px] font-semibold rounded border transition-all ${
+                                                    isInWatchlist 
+                                                    ? 'bg-red-500/10 border-red-500/30 text-red-500 font-bold'
+                                                    : 'bg-white border-neutral-150 text-neutral-700 hover:border-amber-500 hover:text-amber-500 dark:bg-neutral-800 dark:border-neutral-750 dark:text-neutral-300'
+                                                }`}
+                                            >
+                                                {num}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+
+                            <div className="flex justify-between items-center px-1">
+                                <div className="text-xs text-neutral-500 dark:text-neutral-405">
+                                    ?嗅?蝭拚蝯?嚗 <span className="font-bold text-neutral-900 dark:text-white">{filteredMovies.length}</span> ??                                </div>
+                                <span className="text-[10px] text-amber-600 dark:text-amber-400 font-bold tracking-widest uppercase"><i className="fa-solid fa-circle-info mr-1"></i>暺??∠??底蝝唳楛摨血蔣閰?/span>
+                            </div>
+
+                            {/* Main Cards Grid View (Dynamic switchable layout) */}
+                            {viewMode === "poster" ? (
+                                /* POSTER WALL VIEW */
+                                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6">
+                                    {filteredMovies.length > 0 ? (
+                                        filteredMovies.map(movie => {
+                                            const isFav = watchlist.some(w => w.rank === movie.rank);
+                                            const isHighlighted = highlightedMovieId === movie.rank;
+                                            return (
+                                                <article 
+                                                    id={`movie-${movie.rank}`}
+                                                    key={movie.rank}
+                                                    onClick={() => setSelectedDetailMovie(movie)}
+                                                    className={`movie-card cursor-pointer group rounded-xl p-2.5 bg-white dark:bg-[#16161a] border flex flex-col justify-between relative hover:shadow-lg hover:-translate-y-1 ${isHighlighted ? 'highlight-target' : 'nyt-border'}`}
+                                                >
+                                                    <div className="space-y-3">
+                                                        {/* Styled Movie Poster Frame */}
+                                                        <div className="relative poster-glow">
+                                                            <MoviePoster imgId={movie.img} title={movie.title} rank={movie.rank} />
+                                                            {/* Favorite button float */}
+                                                            <button 
+                                                                onClick={(e) => toggleWatchlist(movie, e)}
+                                                                className={`absolute bottom-3 right-3 z-20 p-2 rounded-full shadow-md transition-all active:scale-95 ${isFav ? 'bg-red-500 text-white' : 'bg-black/60 backdrop-blur-sm text-neutral-300 hover:text-white'}`}
+                                                            >
+                                                                <i className="fa-solid fa-heart text-xs"></i>
+                                                            </button>
+                                                        </div>
+
+                                                        {/* Details Text */}
+                                                        <div className="px-1 text-left">
+                                                            <h3 className="font-serif text-sm sm:text-base font-bold text-neutral-900 dark:text-neutral-100 line-clamp-1 group-hover:text-amber-500 transition-colors">
+                                                                {movie.title}
+                                                            </h3>
+                                                            <p className="text-[10px] sm:text-xs text-neutral-450 italic line-clamp-1">
+                                                                {movie.originalTitle}
+                                                            </p>
+                                                            <div className="flex items-center justify-between mt-2 text-[10px] text-neutral-400">
+                                                                <span>{movie.director.split(" (")[0]}</span>
+                                                                <span className="font-bold text-neutral-500 dark:text-neutral-300">{movie.year}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </article>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="col-span-full py-16 text-center bg-white dark:bg-[#16161a] rounded-2xl border nyt-border shadow-sm">
+                                            <i className="fa-regular fa-folder-open text-4xl text-neutral-300 mb-3"></i>
+                                            <h3 className="font-serif font-bold text-lg">瘝??曉蝚血?璇辣?敶?/h3>
+                                            <p className="text-sm text-neutral-400 mt-1">隢?閰虫耨?寥??萄??宏?文?憿祟?豢?隞?/p>
+                                        </div>
+                                    )}
+                                </div>
+                            ) : (
+                                /* EDITORIAL LIST VIEW */
+                                <div className="space-y-4">
+                                    {filteredMovies.length > 0 ? (
+                                        filteredMovies.map(movie => {
+                                            const isFav = watchlist.some(w => w.rank === movie.rank);
+                                            const isHighlighted = highlightedMovieId === movie.rank;
+                                            return (
+                                                <article 
+                                                    id={`movie-${movie.rank}`}
+                                                    key={movie.rank}
+                                                    onClick={() => setSelectedDetailMovie(movie)}
+                                                    className={`p-5 rounded-xl bg-white dark:bg-[#16161a] border cursor-pointer hover:shadow transition-all text-left flex flex-col md:flex-row justify-between gap-4 items-start md:items-center ${isHighlighted ? 'highlight-target' : 'nyt-border'}`}
+                                                >
+                                                    <div className="flex items-start gap-4 flex-grow">
+                                                        <div className="font-serif text-3xl font-black text-amber-500 w-12 shrink-0">
+                                                            #{movie.rank}
+                                                        </div>
+                                                        <div>
+                                                            <h3 className="font-serif text-lg font-bold text-neutral-900 dark:text-neutral-100 hover:text-amber-500 transition-colors">
+                                                                {movie.title} <span className="text-xs font-sans text-neutral-450 font-normal">({movie.originalTitle})</span>
+                                                            </h3>
+                                                            <p className="text-xs text-neutral-550 dark:text-neutral-400 mt-1 line-clamp-2 font-serif">
+                                                                {movie.description}
+                                                            </p>
+                                                            <div className="flex flex-wrap gap-2 mt-2">
+                                                                <span className="text-[10px] bg-neutral-100 dark:bg-neutral-800 text-neutral-650 dark:text-neutral-400 px-2.5 py-0.5 rounded-full font-bold">
+                                                                    撠?: {movie.director}
+                                                                </span>
+                                                                <span className="text-[10px] bg-amber-50 dark:bg-amber-950/40 text-amber-750 dark:text-amber-400 px-2.5 py-0.5 rounded-full font-bold">
+                                                                    {movie.genre}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-3 self-end md:self-center shrink-0">
+                                                        <button 
+                                                            onClick={(e) => toggleWatchlist(movie, e)}
+                                                            className={`p-2.5 rounded-full border ${isFav ? 'bg-red-500 text-white' : 'border-neutral-200 dark:border-neutral-800 text-neutral-400 hover:bg-neutral-50 dark:hover:bg-neutral-900'}`}
+                                                        >
+                                                            <i className="fa-solid fa-heart text-xs"></i>
+                                                        </button>
+                                                        <button className="text-xs font-bold tracking-wider text-amber-500 hover:text-amber-600 bg-amber-50 dark:bg-amber-950/20 px-3 py-2 rounded-lg">
+                                                            ?蔣閰?<i className="fa-solid fa-chevron-right ml-1"></i>
+                                                        </button>
+                                                    </div>
+                                                </article>
+                                            );
+                                        })
+                                    ) : (
+                                        <div className="py-16 text-center bg-white dark:bg-[#16161a] rounded-2xl border nyt-border">
+                                            <h3 className="font-serif font-bold text-lg">瘝??曉蝚血?璇辣?敶?/h3>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
+                            {/* Data Dashboard */}
+                            <section className="bg-white dark:bg-[#16161a] p-6 lg:p-8 rounded-2xl border nyt-border shadow-sm space-y-6">
+                                <h3 className="font-serif font-bold text-xl border-b nyt-border pb-3 flex items-center gap-3">
+                                    <i className="fa-solid fa-chart-pie text-amber-500"></i>
+                                    ??蝝??晞憭折敶勗之?豢???
+                                </h3>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                    {/* Decade counts */}
+                                    <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl space-y-3 text-left">
+                                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">撟港誨?仿雿?</h4>
+                                        <div className="space-y-2">
+                                            {Object.entries(stats.decadeCounts).map(([dec, count]) => (
+                                                <div key={dec} className="space-y-1">
+                                                    <div className="flex justify-between text-xs">
+                                                        <span className="font-medium">{dec}</span>
+                                                        <span className="text-neutral-500">{count} ??/span>
+                                                    </div>
+                                                    <div className="w-full bg-neutral-200 dark:bg-neutral-800 h-1.5 rounded-full overflow-hidden">
+                                                        <div className="bg-amber-500 h-full rounded-full" style={{ width: `${(count/100)*100}%` }}></div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Top directors */}
+                                    <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl space-y-3 text-left">
+                                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">?仿?憭蟡???瞍?/h4>
+                                        <div className="space-y-2 text-xs">
+                                            {stats.topDirectors.map(([name, count], index) => (
+                                                <div key={name} className="flex justify-between items-center py-1 border-b border-neutral-100 dark:border-neutral-800 last:border-0">
+                                                    <span className="font-medium flex items-center gap-2">
+                                                        <span className="w-4 h-4 bg-amber-400/20 text-amber-600 rounded-full flex items-center justify-center font-bold text-[10px]">{index + 1}</span>
+                                                        {name}
+                                                    </span>
+                                                    <span className="font-bold text-amber-600">{count} ??/span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Genres */}
+                                    <div className="bg-neutral-50 dark:bg-neutral-900 p-4 rounded-xl space-y-3 text-left">
+                                        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500 dark:text-neutral-400">銝餉?憿???</h4>
+                                        <div className="space-y-2 text-xs max-h-40 overflow-y-auto">
+                                            {Object.entries(stats.genreCounts).map(([genre, count]) => (
+                                                <div key={genre} className="flex justify-between items-center">
+                                                    <span className="font-medium text-neutral-600 dark:text-neutral-400">{genre}</span>
+                                                    <span className="font-bold">{count} ??/span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </div>
+                            </section>
+                        </section>
+                    </main>
+
+                    {/* Footer */}
+                    <footer className="border-t nyt-border bg-white dark:bg-[#121212] py-10 px-4 text-center text-xs text-neutral-400 mt-12 transition-colors duration-300">
+                        <div className="max-w-7xl mx-auto space-y-4">
+                            <p className="font-serif italic text-sm text-neutral-650 dark:text-neutral-300">"All the masterpieces fit to celebrate."</p>
+                            <p>穢 2026 The New York Times Tribute & Film Interactive Guide. ?祉雯蝡??券???蝔?蝣澆歇璆菔?芸?嚗??拙?銝?萇撣 GitHub Pages嚗?/p>
+                            <div className="flex justify-center gap-4 text-sm text-neutral-500">
+                                <a href="https://github.com" target="_blank" className="hover:text-amber-500"><i className="fa-brands fa-github text-base"></i></a>
+                                <a href="#" className="hover:text-amber-500"><i className="fa-solid fa-envelope text-base"></i></a>
+                            </div>
+                        </div>
+                    </footer>
+
+                    {}
+                    {selectedDetailMovie && (
+                        <div 
+                            className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 z-50 animate-fadeIn"
+                            onClick={() => setSelectedDetailMovie(null)}
+                        >
+                            <div 
+                                className="bg-[#fcfbf9] dark:bg-[#141417] text-neutral-900 dark:text-neutral-100 rounded-3xl max-w-2xl w-full overflow-hidden shadow-2xl border border-amber-500/20 transform animate-scaleUp transition-all text-left flex flex-col max-h-[90vh]"
+                                onClick={(e) => e.stopPropagation()}
+                            >
+                                {/* Modal Header Strip */}
+                                <div className="p-4 border-b nyt-border flex justify-between items-center bg-neutral-100/50 dark:bg-neutral-900/50">
+                                    <span className="text-[10px] tracking-[0.25em] uppercase font-black text-amber-600 dark:text-amber-400 flex items-center gap-2">
+                                        <i className="fa-solid fa-scroll"></i> NYT FILM ARCHIVE REVIEW
+                                    </span>
+                                    <button 
+                                        onClick={() => setSelectedDetailMovie(null)} 
+                                        className="text-neutral-400 hover:text-neutral-600 dark:hover:text-neutral-200 p-1 text-sm bg-neutral-200/50 dark:bg-neutral-800 rounded-full w-7 h-7 flex items-center justify-center"
+                                    >
+                                        <i className="fa-solid fa-xmark text-lg"></i>
+                                    </button>
+                                </div>
+
+                                {/* Modal Body (Scrollable) */}
+                                <div className="p-6 overflow-y-auto space-y-6">
+                                    <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+                                        
+                                        {/* Poster area in modal */}
+                                        <div className="md:col-span-5 w-44 mx-auto md:w-full shrink-0">
+                                            <MoviePoster imgId={selectedDetailMovie.img} title={selectedDetailMovie.title} rank={selectedDetailMovie.rank} />
+                                        </div>
+
+                                        {/* Primary Metadata */}
+                                        <div className="md:col-span-7 space-y-4">
+                                            <div className="space-y-1">
+                                                <span className="bg-amber-400 text-black text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-wider">
+                                                    RANKED #{selectedDetailMovie.rank}
+                                                </span>
+                                                <h3 className="font-serif text-3xl font-extrabold text-neutral-900 dark:text-white mt-2">
+                                                    {selectedDetailMovie.title}
+                                                </h3>
+                                                <p className="text-sm text-neutral-450 italic mt-0.5">
+                                                    {selectedDetailMovie.originalTitle} 繚 {selectedDetailMovie.year} 撟?                                                </p>
+                                            </div>
+
+                                            <div className="flex flex-wrap gap-2 text-xs">
+                                                <span className="bg-neutral-150 dark:bg-neutral-850 px-2.5 py-1 rounded-full text-neutral-600 dark:text-neutral-300 font-semibold">
+                                                    <i className="fa-solid fa-film mr-1.5 text-amber-500"></i>{selectedDetailMovie.genre}
+                                                </span>
+                                                {selectedDetailMovie.duration && (
+                                                    <span className="bg-neutral-150 dark:bg-neutral-850 px-2.5 py-1 rounded-full text-neutral-650 dark:text-neutral-300 font-semibold">
+                                                        <i className="fa-regular fa-clock mr-1.5 text-amber-500"></i>{selectedDetailMovie.duration}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            <div className="text-xs space-y-1 text-neutral-600 dark:text-neutral-450 border-t border-b border-black/10 dark:border-white/10 py-3">
+                                                <p><span className="font-bold text-neutral-800 dark:text-neutral-250">撠?:</span> {selectedDetailMovie.director}</p>
+                                                {selectedDetailMovie.stars && (
+                                                    <p className="line-clamp-1"><span className="font-bold text-neutral-800 dark:text-neutral-250">銝餅?:</span> {selectedDetailMovie.stars}</p>
+                                                )}
+                                                {selectedDetailMovie.awards && (
+                                                    <p className="text-amber-600 dark:text-amber-400"><span className="font-bold text-neutral-800 dark:text-neutral-250">??璁株亳:</span> {selectedDetailMovie.awards}</p>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* Classic Quote block */}
+                                    {selectedDetailMovie.quote && (
+                                        <div className="bg-amber-500/10 border-l-4 border-amber-500 p-4 rounded-r-xl my-4">
+                                            <p className="font-serif italic text-base text-amber-700 dark:text-amber-400 font-black leading-relaxed">
+                                                {selectedDetailMovie.quote}
+                                            </p>
+                                            <span className="text-[10px] uppercase font-bold tracking-widest text-neutral-400 block mt-1">??蝬?啗?</span>
+                                        </div>
+                                    )}
+
+                                    {/* Authoritative Review Section */}
+                                    <div className="space-y-2">
+                                        <h4 className="font-serif text-lg font-bold border-b border-black/10 dark:border-white/10 pb-1.5 text-amber-600 dark:text-amber-450 flex items-center gap-2">
+                                            <i className="fa-solid fa-feather-pointed"></i> 蝝??甈?暺?
+                                        </h4>
+                                        <p className="text-sm text-neutral-700 dark:text-neutral-300 font-serif leading-relaxed italic">
+                                            {selectedDetailMovie.review || selectedDetailMovie.description || "?銝?典?摰?1銝??餃蔣?冽蝢飛擃漲???臬?敺?雿蔣??雿??????鈭風?脤?撠??嗉?撖敦敺桃????餌?港蝙?函?閫?曉敺敺?甇脫?鋆∠?豢活?澈??隢?}
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Modal Actions Footer */}
+                                <div className="p-5 border-t nyt-border bg-neutral-100/40 dark:bg-neutral-900/40 flex flex-wrap gap-3 items-center justify-between">
+                                    <button 
+                                        onClick={(e) => toggleWatchlist(selectedDetailMovie, e)}
+                                        className={`px-4 py-2 text-xs font-bold rounded-xl transition-all flex items-center gap-2 border ${watchlist.some(w => w.rank === selectedDetailMovie.rank) ? 'bg-red-500 text-white border-red-500' : 'border-neutral-250 dark:border-neutral-800 hover:bg-neutral-50 dark:hover:bg-neutral-900'}`}
+                                    >
+                                        <i className="fa-solid fa-heart"></i>
+                                        {watchlist.some(w => w.rank === selectedDetailMovie.rank) ? '撌脣??亦??輻??? : '?蝘?'}
+                                    </button>
+
+                                    <div className="flex gap-2">
+                                        {/* Look up trailer on Youtube */}
+                                        <a 
+                                            href={`https://www.youtube.com/results?search_query=${encodeURIComponent(selectedDetailMovie.title + ' ' + selectedDetailMovie.year + ' ?餃蔣??')}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+                                        >
+                                            <i className="fa-brands fa-youtube"></i>閫????                                        </a>
+
+                                        {/* Look up on Yahoo Movies TW */}
+                                        <a 
+                                            href={`https://movies.yahoo.com.tw/moviesearch_result.html?keyword=${encodeURIComponent(selectedDetailMovie.title)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 active:scale-95"
+                                        >
+                                            <i className="fa-solid fa-magnifying-glass"></i>Yahoo! ?餃蔣
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Personality Quiz Pop Up */}
+                    {showQuiz && (
+                        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                            <div className="bg-white dark:bg-[#16161a] rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-amber-500/10 transform animate-scaleUp">
+                                <div className="p-6 border-b nyt-border flex justify-between items-center bg-gradient-to-r from-amber-50 to-transparent dark:from-amber-950/10">
+                                    <div className="flex items-center gap-2">
+                                        <i className="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+                                        <h3 className="font-serif font-bold text-lg">撠?賭葉瘜典??敶?/h3>
+                                    </div>
+                                    <button 
+                                        onClick={() => { setShowQuiz(false); resetQuiz(); }} 
+                                        className="text-neutral-400 hover:text-neutral-600 p-1 text-sm bg-neutral-100 dark:bg-neutral-800 rounded-full"
+                                    >
+                                        <i className="fa-solid fa-xmark text-lg"></i>
+                                    </button>
+                                </div>
+
+                                <div className="p-6 text-left">
+                                    {quizStep < quizQuestions.length ? (
+                                        <div className="space-y-6">
+                                            <div className="w-full bg-neutral-100 dark:bg-neutral-800 h-1 rounded-full overflow-hidden">
+                                                <div className="bg-amber-500 h-full transition-all" style={{ width: `${((quizStep)/quizQuestions.length)*100}%` }}></div>
+                                            </div>
+
+                                            <div className="space-y-1">
+                                                <span className="text-xs font-bold text-amber-500 uppercase tracking-widest">?? {quizStep + 1} of {quizQuestions.length}</span>
+                                                <h4 className="font-serif text-lg font-bold">{quizQuestions[quizStep].question}</h4>
+                                            </div>
+
+                                            <div className="grid grid-cols-1 gap-3">
+                                                {quizQuestions[quizStep].options.map(option => (
+                                                    <button
+                                                        key={option.value}
+                                                        onClick={() => handleQuizAnswer(quizQuestions[quizStep].id, option.value)}
+                                                        className="flex items-center gap-4 p-4 text-left border border-neutral-200 dark:border-neutral-800 hover:border-amber-500 hover:bg-amber-500/5 dark:hover:bg-amber-500/10 rounded-2xl transition-all group"
+                                                    >
+                                                        <span className="w-10 h-10 rounded-xl bg-neutral-50 dark:bg-neutral-900 text-neutral-500 dark:text-neutral-400 group-hover:bg-amber-500 group-hover:text-white transition-all flex items-center justify-center text-sm">
+                                                            <i className={`fa-solid ${option.icon}`}></i>
+                                                        </span>
+                                                        <span className="text-sm font-semibold">{option.label}</span>
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-6 text-center">
+                                            <div className="w-12 h-12 bg-emerald-100 dark:bg-emerald-950/40 text-emerald-500 rounded-full flex items-center justify-center mx-auto text-xl animate-bounce-slow">
+                                                <i className="fa-solid fa-check animate-pulse"></i>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <h4 className="font-serif text-xl font-bold">?箸蝎暸?銝剜釣摰敶?/h4>
+                                                <p className="text-xs text-neutral-400">?寞??函?敹??Ｙ揣嚗?典?曉之?餃蔣銝剖?詨 3 ?券?銝誨銵其?嚗?/p>
+                                            </div>
+
+                                            <div className="space-y-3 mt-4">
+                                                {quizResults.map(movie => (
+                                                    <div key={movie.rank} className="flex items-center gap-4 p-3 border border-neutral-200 dark:border-neutral-800 rounded-xl text-left bg-neutral-50 dark:bg-neutral-900/55 hover:bg-neutral-100 dark:hover:bg-neutral-900 transition-all">
+                                                        <span className="text-xl font-serif font-black text-amber-500 w-10 text-center">#{movie.rank}</span>
+                                                        <div className="flex-grow">
+                                                            <h5 className="font-bold text-sm">{movie.title}</h5>
+                                                            <p className="text-xs text-neutral-400">{movie.director.split(" (")[0]} 繚 {movie.year}撟?/p>
+                                                        </div>
+                                                        <div className="flex items-center gap-2">
+                                                            <button 
+                                                                onClick={() => {
+                                                                    setShowQuiz(false);
+                                                                    setSelectedDetailMovie(movie);
+                                                                }}
+                                                                className="px-3 py-1.5 bg-neutral-900 hover:bg-neutral-800 text-white dark:bg-white dark:text-black dark:hover:bg-neutral-100 rounded-lg text-xs font-bold"
+                                                            >
+                                                                閰?
+                                                            </button>
+                                                            <button 
+                                                                onClick={(e) => toggleWatchlist(movie, e)}
+                                                                className={`p-2 rounded-full border ${watchlist.some(w => w.rank === movie.rank) ? 'bg-red-50 dark:bg-red-950/40 border-red-200 text-red-500' : 'border-neutral-200 text-neutral-400'}`}
+                                                                title="??"
+                                                            >
+                                                                <i className="fa-solid fa-heart text-xs"></i>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="flex gap-3 justify-center pt-4 border-t nyt-border">
+                                                <button 
+                                                    onClick={resetQuiz} 
+                                                    className="px-4 py-2 bg-neutral-105 hover:bg-neutral-200 dark:bg-neutral-800 dark:hover:bg-neutral-700 rounded-xl text-xs font-bold transition-all"
+                                                >
+                                                    ?皜祇?
+                                                </button>
+                                                <button 
+                                                    onClick={() => { setShowQuiz(false); resetQuiz(); }} 
+                                                    className="px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all"
+                                                >
+                                                    蝣箏??駁?                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Dynamic Movie Randomizer Pop Up */}
+                    {showRandomizer && (
+                        <div className="fixed inset-0 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+                            <div className="bg-white dark:bg-[#16161a] rounded-3xl max-w-md w-full overflow-hidden shadow-2xl border border-amber-500/10 text-center">
+                                <div className="p-5 border-b nyt-border flex justify-between items-center bg-neutral-50 dark:bg-neutral-900">
+                                    <h3 className="font-serif font-bold text-base flex items-center gap-2">
+                                        <i className="fa-solid fa-clapperboard text-amber-500 animate-spin-slow"></i>
+                                        隞予??剁??賡??暹???                                    </h3>
+                                    {!isSpinning && (
+                                        <button 
+                                            onClick={() => { setShowRandomizer(false); setRandomMovie(null); }} 
+                                            className="text-neutral-400 hover:text-neutral-600 text-sm bg-neutral-150 dark:bg-neutral-800 rounded-full w-7 h-7 flex items-center justify-center"
+                                        >
+                                            <i className="fa-solid fa-xmark"></i>
+                                        </button>
+                                    )}
+                                </div>
+
+                                <div className="p-8 space-y-6">
+                                    {isSpinning ? (
+                                        <div className="space-y-6 py-8">
+                                            {/* Spinning Shutter */}
+                                            <div className="w-24 h-24 border-8 border-dashed border-amber-500 rounded-full flex items-center justify-center mx-auto animate-spin-slow">
+                                                <i className="fa-solid fa-film text-3xl text-neutral-400"></i>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <p className="text-xs uppercase tracking-widest text-neutral-400 font-bold animate-pulse">甇?蝎暸鈭?銝銝?蟡??銝?..</p>
+                                                <h4 className="font-serif text-xl font-bold italic text-amber-600 dark:text-amber-400 line-clamp-1">{spinTitle || "??擛潭憯怒?}</h4>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        randomMovie && (
+                                            <div className="space-y-6 transform animate-scaleUp">
+                                                <div className="space-y-2">
+                                                    <span className="bg-amber-400 text-black text-xs font-black px-3 py-1 rounded-full">
+                                                        NO. {randomMovie.rank}
+                                                    </span>
+                                                    <h4 className="font-serif text-2xl font-bold text-neutral-900 dark:text-white mt-2">
+                                                        {randomMovie.title}
+                                                    </h4>
+                                                    <p className="text-xs text-neutral-400 italic font-medium">
+                                                        {randomMovie.originalTitle} 繚 {randomMovie.year}撟?                                                    </p>
+                                                    <div className="py-1">
+                                                        <span className="bg-amber-50 dark:bg-amber-950/40 text-[10px] text-amber-700 dark:text-amber-400 px-2.5 py-1 rounded-full font-bold">
+                                                            {randomMovie.genre}
+                                                        </span>
+                                                    </div>
+                                                </div>
+
+                                                <p className="text-xs sm:text-sm text-neutral-650 dark:text-neutral-300 font-serif leading-relaxed italic bg-neutral-50 dark:bg-neutral-900/50 p-4 rounded-xl">
+                                                    ?randomMovie.description}??                                                </p>
+
+                                                <div className="flex gap-3 justify-center">
+                                                    <button 
+                                                        onClick={(e) => toggleWatchlist(randomMovie, e)}
+                                                        className={`flex-1 py-2.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-2 border ${watchlist.some(w => w.rank === randomMovie.rank) ? 'bg-red-50 dark:bg-red-950/40 border-red-200 text-red-500' : 'border-neutral-200 text-neutral-700 dark:text-neutral-300 dark:border-neutral-800'}`}
+                                                    >
+                                                        <i className="fa-solid fa-heart"></i>
+                                                        {watchlist.some(w => w.rank === randomMovie.rank) ? '撌脫?? : '??'}
+                                                    </button>
+                                                    <button 
+                                                        onClick={() => {
+                                                            setShowRandomizer(false);
+                                                            setSelectedDetailMovie(randomMovie);
+                                                            setRandomMovie(null);
+                                                        }}
+                                                        className="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-xs font-bold transition-all"
+                                                    >
+                                                        ?仿摰敶梯?
+                                                    </button>
+                                                </div>
+
+                                                <button 
+                                                    onClick={triggerRandomizer} 
+                                                    className="w-full py-2 text-neutral-400 hover:text-neutral-600 text-[10px] uppercase tracking-widest font-bold transition-all"
+                                                >
+                                                    <i className="fa-solid fa-arrows-rotate mr-1"></i> ?銝甈?                                                </button>
+                                            </div>
+                                        )
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Universal Toast Notifications */}
+                    {toast.show && (
+                        <div className="fixed bottom-6 right-6 bg-neutral-900 text-white dark:bg-[#faf9f6] dark:text-[#121212] py-3.5 px-5 rounded-xl shadow-xl z-50 flex items-center gap-2.5 transform animate-slideUp text-xs font-semibold tracking-wider border border-white/10 dark:border-black/5">
+                            <i className="fa-solid fa-circle-check text-amber-500"></i>
+                            <span>{toast.message}</span>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        // Render React DOM
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+
+
+
