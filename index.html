@@ -755,6 +755,7 @@
         </div>
         <div class="video-frame" aria-label="紐約時報 21 世紀百大電影影片導覽">
           <iframe
+            id="interestVideo"
             src="https://www.youtube.com/embed/Bz0QqZrqoyY?rel=0"
             title="紐約時報 21 世紀百大電影影片導覽"
             loading="lazy"
@@ -1264,6 +1265,18 @@
       trackUiEvent("pick_tonight", { source: "hero" });
       pickTonight();
     });
+    const interestVideo = document.querySelector("#interestVideo");
+    if (interestVideo) {
+      const trackInterestedUser = () => {
+        trackUiEvent("interested_user_video_click", {
+          user_tag: "感興趣的使用者",
+          video_id: "Bz0QqZrqoyY",
+          video_title: "紐約時報 21 世紀百大電影影片導覽"
+        });
+      };
+      interestVideo.addEventListener("click", trackInterestedUser);
+      interestVideo.addEventListener("focus", trackInterestedUser);
+    }
     window.addEventListener("hashchange", () => {
       trackPageView(window.location.hash.replace("#", "") || "home");
     });
