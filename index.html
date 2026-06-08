@@ -582,6 +582,57 @@
       border-right: 1px solid rgba(23,20,17,.12);
     }
 
+    .analytics-teaser {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(280px, 1.05fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .analytics-copy {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .analytics-copy h3 {
+      font-size: clamp(24px, 4vw, 36px);
+      line-height: 1.12;
+      margin: 10px 0 12px;
+    }
+
+    .analytics-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+    }
+
+    .analytics-stat {
+      border: 1px solid rgba(23,20,17,.12);
+      border-radius: 8px;
+      background: rgba(255,255,255,.4);
+      padding: 16px;
+      min-height: 110px;
+    }
+
+    .analytics-stat strong {
+      display: block;
+      font-family: "Noto Serif TC", serif;
+      font-size: 34px;
+      line-height: 1;
+      margin-bottom: 8px;
+    }
+
+    .analytics-stat span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      font-weight: 700;
+    }
+
     .year-card:last-child { border-right: 0; }
     .year-card strong { font-family: "Noto Serif TC", serif; font-size: 26px; }
     .year-card span { display: block; margin-top: 8px; color: var(--muted); font-size: 13px; line-height: 1.6; }
@@ -652,7 +703,7 @@
     }
 
     @media (max-width: 960px) {
-      .hero, .spotlight, .video-layout, .modal-card { grid-template-columns: 1fr; }
+      .hero, .spotlight, .video-layout, .analytics-teaser, .modal-card { grid-template-columns: 1fr; }
       .hero { padding-top: 36px; }
       .hero-board { min-height: 520px; }
       .feature-card { grid-template-columns: 180px 1fr; }
@@ -671,7 +722,7 @@
       .hero-board { min-height: 420px; }
       .marquee { grid-template-columns: repeat(2, 1fr); }
       .film-strip:nth-child(3) { display: none; }
-      .stats, .movie-grid, .collections, .timeline, .feature-card { grid-template-columns: 1fr; }
+      .stats, .movie-grid, .collections, .timeline, .feature-card, .analytics-stats { grid-template-columns: 1fr; }
       .section-head { display: block; }
       .section-head p { margin-top: 10px; }
       .toolbar { top: 55px; }
@@ -693,6 +744,7 @@
         <a href="#library">片單</a>
         <a href="#moods">情緒推薦</a>
         <a href="#timeline">年份索引</a>
+        <a href="ga4-infographic.html">數據圖表</a>
       </div>
     </nav>
   </header>
@@ -763,6 +815,47 @@
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
             allowfullscreen
           ></iframe>
+        </div>
+      </div>
+    </section>
+
+    <section id="analytics-preview" class="shell">
+      <div class="analytics-teaser">
+        <div class="panel analytics-copy">
+          <div>
+            <span class="eyebrow"><i class="fa-solid fa-chart-column"></i> Analytics</span>
+            <h3>這個網站也有一頁專門看 GA4 數據。</h3>
+            <p>如果你想把網站內容和實際流量放在一起看，我另外做了一頁 GA4 資訊圖表，整理了最近 30 天的使用者、來源、事件和影片互動狀態。</p>
+          </div>
+          <div class="card-actions">
+            <a class="btn primary" href="ga4-infographic.html">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i>開啟數據圖表
+            </a>
+          </div>
+        </div>
+        <div class="panel analytics-copy">
+          <div>
+            <span class="eyebrow"><i class="fa-solid fa-database"></i> Snapshot</span>
+            <div class="analytics-stats">
+              <div class="analytics-stat">
+                <strong>2</strong>
+                <span>活躍使用者</span>
+              </div>
+              <div class="analytics-stat">
+                <strong>4</strong>
+                <span>工作階段</span>
+              </div>
+              <div class="analytics-stat">
+                <strong>7</strong>
+                <span>頁面瀏覽</span>
+              </div>
+              <div class="analytics-stat">
+                <strong>0</strong>
+                <span>影片感興趣事件</span>
+              </div>
+            </div>
+          </div>
+          <p>目前首頁是主要流量入口，來源以 `vercel.com / referral` 為主。等影片事件開始進資料後，這頁會更有參考價值。</p>
         </div>
       </div>
     </section>
