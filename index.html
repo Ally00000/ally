@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="《紐約時報》21 世紀百大電影互動導覽：排名、搜尋、類型篩選與觀看筆記。" />
   <title>《紐約時報》21 世紀百大電影｜互動導覽</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J5DM35NHLQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-J5DM35NHLQ");
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
@@ -1194,15 +1201,54 @@
       showToast(`今晚可以看：${movie.title}`);
     }
 
+    function trackPageView(sectionName) {
+      if (typeof gtag !== "function") return;
+      const pageHash = window.location.hash || "";
+      const pageLocation = `${window.location.origin}${window.location.pathname}${pageHash}`;
+      gtag("event", "page_view", {
+        page_title: document.title,
+        page_location: pageLocation,
+        page_path: `${window.location.pathname}${pageHash}`,
+        page_section: sectionName || "home"
+      });
+    }
+
+    function trackUiEvent(eventName, details) {
+      if (typeof gtag !== "function") return;
+      gtag("event", eventName, details);
+    }
+
     document.addEventListener("click", event => {
       const openButton = event.target.closest("[data-open]");
       const saveButton = event.target.closest("[data-save]");
       const moodButton = event.target.closest("[data-mood-pick]");
-      if (openButton) openMovie(openButton.dataset.open);
-      if (saveButton) toggleSave(saveButton.dataset.save);
+      if (openButton) {
+        const movie = movies.find(item => item.rank === Number(openButton.dataset.open));
+        if (movie) {
+          trackUiEvent("select_content", {
+            content_type: "movie",
+            item_id: movie.rank,
+            item_name: movie.title
+          });
+        }
+        openMovie(openButton.dataset.open);
+      }
+      if (saveButton) {
+        const movie = movies.find(item => item.rank === Number(saveButton.dataset.save));
+        if (movie) {
+          trackUiEvent("toggle_favorite", {
+            item_id: movie.rank,
+            item_name: movie.title
+          });
+        }
+        toggleSave(saveButton.dataset.save);
+      }
       if (moodButton) {
         moodFilter.value = moodButton.dataset.moodPick;
         document.querySelector("#library").scrollIntoView({ behavior: "smooth" });
+        trackUiEvent("select_mood_filter", {
+          mood_name: moodButton.dataset.moodPick
+        });
         renderMovies();
       }
     });
@@ -1214,7 +1260,21 @@
     document.addEventListener("keydown", event => {
       if (event.key === "Escape") modal.classList.remove("open");
     });
-    document.querySelector("#pickTonight").addEventListener("click", pickTonight);
+    document.querySelector("#pickTonight").addEventListener("click", () => {
+      trackUiEvent("pick_tonight", { source: "hero" });
+      pickTonight();
+    });
+    window.addEventListener("hashchange", () => {
+      trackPageView(window.location.hash.replace("#", "") || "home");
+    });
+    document.querySelectorAll("a[href^='http']").forEach(link => {
+      link.addEventListener("click", () => {
+        trackUiEvent("click_outbound_link", {
+          link_url: link.href,
+          link_text: (link.textContent || "").trim()
+        });
+      });
+    });
     [searchInput, genreFilter, moodFilter, sortSelect].forEach(control => control.addEventListener("input", renderMovies));
 
     renderHeroPosters();
@@ -1223,6 +1283,7 @@
     renderMoods();
     renderTimeline();
     renderMovies();
+    trackPageView(window.location.hash.replace("#", "") || "home");
   </script>
 </body>
 </html>
