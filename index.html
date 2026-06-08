@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Ally 的 21 世紀電影片單：精選電影、觀看理由、情緒推薦與收藏清單。" />
-  <title>Ally Film Guide｜21 世紀電影精選</title>
+  <meta name="description" content="《紐約時報》21 世紀百大電影互動導覽：排名、搜尋、類型篩選與觀看筆記。" />
+  <title>《紐約時報》21 世紀百大電影｜互動導覽</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
@@ -642,7 +642,7 @@
     <nav class="shell nav" aria-label="主選單">
       <a class="brand" href="#">
         <span class="brand-mark"><i class="fa-solid fa-film"></i></span>
-        <span>Ally Film Guide</span>
+        <span>NYT 21 世紀百大電影</span>
       </a>
       <div class="nav-links">
         <a href="#featured">精選</a>
@@ -656,18 +656,18 @@
   <main>
     <section class="shell hero">
       <div>
-        <span class="eyebrow"><i class="fa-solid fa-clapperboard"></i> 21 世紀電影精選</span>
-        <h1>把今晚要看的電影，變成一份有方向的選擇。</h1>
-        <p class="lead">這份片單重新整理了當代電影中值得一看的作品：不只列排名，也補上觀看理由、情緒入口、導演風格與片長。圖片改為專屬設計海報視覺，避免用不相關的網路照片。</p>
+        <span class="eyebrow"><i class="fa-solid fa-clapperboard"></i> The New York Times List</span>
+        <h1>《紐約時報》21 世紀百大電影互動導覽。</h1>
+        <p class="lead">根據《The New York Times》2025 年 6 月公布的「The 100 Best Movies of the 21st Century」榜單整理。這裡把 100 部電影做成可搜尋、可篩選、可收藏的中文導覽，方便你照排名補片，也能依類型和心情挑片。</p>
         <div class="hero-actions">
           <a class="btn primary" href="#library"><i class="fa-solid fa-magnifying-glass"></i>瀏覽片單</a>
           <button class="btn" id="pickTonight"><i class="fa-solid fa-shuffle"></i>今晚推薦</button>
           <a class="btn" href="#moods"><i class="fa-solid fa-layer-group"></i>依心情找片</a>
         </div>
         <div class="stats" aria-label="片單統計">
-          <div class="stat"><strong>24</strong><span>部精選電影</span></div>
-          <div class="stat"><strong>6</strong><span>種觀看情緒</span></div>
-          <div class="stat"><strong>2000+</strong><span>當代電影脈絡</span></div>
+          <div class="stat"><strong>100</strong><span>部 NYT 榜單電影</span></div>
+          <div class="stat"><strong>500+</strong><span>位影人與相關人士投票</span></div>
+          <div class="stat"><strong>2000+</strong><span>21 世紀電影範圍</span></div>
         </div>
       </div>
 
@@ -675,8 +675,8 @@
         <div class="marquee" id="heroPosters"></div>
         <div class="hero-feature">
           <span class="eyebrow"><i class="fa-solid fa-star"></i> Editor's First Pick</span>
-          <h2>寄生上流</h2>
-          <p>一部把階級、空間與黑色幽默拍到精準的電影。若只想從一部開始，這是最容易理解「21 世紀電影為什麼變得重要」的入口。</p>
+          <h2>Parasite｜寄生上流</h2>
+          <p>NYT 榜單第 1 名。奉俊昊把階級、空間與黑色幽默拍成幾乎零冷場的社會寓言，也讓非英語電影站上更醒目的全球位置。</p>
         </div>
       </div>
     </section>
@@ -687,7 +687,7 @@
           <span class="eyebrow"><i class="fa-solid fa-crown"></i> Featured</span>
           <h2>先看這 4 部</h2>
         </div>
-        <p>如果你不知道從哪裡開始，這四部各代表一種很鮮明的當代電影方向：社會寓言、記憶迷宮、情感詩意、類型突破。</p>
+        <p>榜單前四名分別代表社會寓言、夢境迷宮、資本史詩與情感詩意，是理解這份百大名單的最佳入口。</p>
       </div>
       <div class="spotlight" id="featuredGrid"></div>
     </section>
@@ -704,7 +704,7 @@
           <option value="rank">依推薦排序</option>
           <option value="yearDesc">年份新到舊</option>
           <option value="yearAsc">年份舊到新</option>
-          <option value="duration">片長短到長</option>
+          <option value="director">導演 A-Z</option>
         </select>
       </div>
     </div>
@@ -713,9 +713,9 @@
       <div class="section-head">
         <div>
           <span class="eyebrow"><i class="fa-solid fa-table-cells-large"></i> Library</span>
-          <h2>完整精選片單</h2>
+          <h2>完整百大榜單</h2>
         </div>
-        <p id="resultCount">共 24 部電影</p>
+        <p id="resultCount">共 100 部電影</p>
       </div>
       <div class="movie-grid" id="movieGrid"></div>
       <div class="empty" id="emptyState">
@@ -730,7 +730,7 @@
           <span class="eyebrow"><i class="fa-solid fa-compass"></i> Mood Guide</span>
           <h2>依今天的心情挑片</h2>
         </div>
-        <p>網站內容不只是「排名」，也讓你用觀看狀態進入片單。想被震撼、想沉澱、想看爽片，都能快速找到方向。</p>
+        <p>百大榜單很長，所以我保留心情入口：想被震撼、想沉澱、想看節奏或想補影史代表作，都能快速找到方向。</p>
       </div>
       <div class="collections" id="moodPanels"></div>
     </section>
@@ -775,37 +775,146 @@
 
   <footer>
     <div class="shell">
-      <strong>Ally Film Guide</strong>｜內容已重新編排為繁體中文，視覺海報為原創風格化設計，不再使用隨機圖庫照片。
+      <strong>NYT 21 世紀百大電影</strong>｜依《The New York Times》2025 年 6 月「The 100 Best Movies of the 21st Century」榜單整理；中文摘要與視覺海報為本站重新編排。
     </div>
   </footer>
 
   <script>
-    const movies = [
-      { rank: 1, title: "寄生上流", original: "Parasite", director: "奉俊昊", year: 2019, genre: "社會寓言", mood: "想被震撼", duration: 132, symbol: "▦", colors: ["#0f3d2e", "#111111"], description: "貧富兩個家庭在同一座城市裡互相靠近，幽默、懸疑與殘酷逐步交疊。", why: "它把階級問題拍成一場幾乎零冷場的類型片，既好看，也讓人看完後一直回想空間和氣味的象徵。", context: "適合作為當代世界電影的入門作品：節奏清楚、議題尖銳，也能看見韓國電影工業的成熟。", tags: ["階級", "黑色幽默", "奧斯卡"] },
-      { rank: 2, title: "穆荷蘭大道", original: "Mulholland Drive", director: "大衛林區", year: 2001, genre: "心理懸疑", mood: "想解謎", duration: 147, symbol: "◎", colors: ["#20123f", "#07101f"], description: "一場好萊塢夢境慢慢裂開，身份、慾望與記憶變成迷宮。", why: "它不是要你立刻得到答案，而是讓你感受電影如何像夢一樣運作。", context: "適合喜歡討論結局、象徵和敘事結構的人。第一次看不懂也很正常，第二次通常更迷人。", tags: ["夢境", "好萊塢", "作者電影"] },
-      { rank: 3, title: "花樣年華", original: "In the Mood for Love", director: "王家衛", year: 2000, genre: "愛情", mood: "想沉澱", duration: 98, symbol: "雨", colors: ["#8a1f2d", "#22110f"], description: "兩個被背叛的人在樓梯、巷弄與時間縫隙裡靠近，卻始終克制。", why: "這部片把沒有說出口的愛拍成節奏、顏色與音樂，是影像美學很好的範本。", context: "適合安靜的夜晚觀看。它的重點不是劇情轉折，而是那些差一點就說出口的情緒。", tags: ["王家衛", "克制", "香港"] },
-      { rank: 4, title: "黑金企業", original: "There Will Be Blood", director: "保羅湯瑪斯安德森", year: 2007, genre: "劇情", mood: "想看表演", duration: 158, symbol: "◆", colors: ["#6d3a12", "#15100c"], description: "石油、信仰與野心互相吞噬，一個人的成功變成荒涼的深坑。", why: "丹尼爾戴路易斯的表演極具壓迫感，電影也把資本與孤獨拍得像史詩。", context: "如果你喜歡角色研究與強烈表演，這部會非常有記憶點。", tags: ["資本", "信仰", "表演"] },
-      { rank: 5, title: "月光下的藍色男孩", original: "Moonlight", director: "貝瑞傑金斯", year: 2016, genre: "成長", mood: "想沉澱", duration: 111, symbol: "●", colors: ["#123c69", "#081b2f"], description: "三個人生階段拼出一個男孩如何理解自己、親密與孤獨。", why: "它溫柔但不軟弱，以光線、沉默和身體距離講述身份認同。", context: "片長不長，情緒卻很深。適合想看細膩成長故事的人。", tags: ["身份", "成長", "奧斯卡"] },
-      { rank: 6, title: "險路勿近", original: "No Country for Old Men", director: "柯恩兄弟", year: 2007, genre: "犯罪", mood: "想緊張", duration: 122, symbol: "×", colors: ["#3f3428", "#0f0d0b"], description: "一筆意外之財引來冷酷追殺，荒漠裡的正義感逐漸失效。", why: "它用極少配樂和精準剪接製造壓力，反派形象也成為影史經典。", context: "適合喜歡犯罪片、冷調幽默與宿命感的人。", tags: ["犯罪", "西部", "懸疑"] },
-      { rank: 7, title: "王牌冤家", original: "Eternal Sunshine of the Spotless Mind", director: "米歇爾龔德里", year: 2004, genre: "愛情科幻", mood: "想哭一下", duration: 108, symbol: "↺", colors: ["#2b6f89", "#f0a64a"], description: "一對戀人選擇刪除彼此記憶，卻在消失過程中重新理解愛。", why: "它把科幻設定拍成最私人的情感問題：如果能忘記痛苦，還要不要保留愛過的證明？", context: "適合失戀、回憶很多，或想看創意敘事的人。", tags: ["記憶", "失戀", "科幻"] },
-      { rank: 8, title: "逃出絕命鎮", original: "Get Out", director: "喬登皮爾", year: 2017, genre: "驚悚", mood: "想緊張", duration: 104, symbol: "◉", colors: ["#111111", "#6f1717"], description: "一次拜訪女友家人的週末，逐漸露出令人不安的種族寓言。", why: "它把社會議題包進高完成度驚悚片，娛樂性和批判性同時成立。", context: "適合想看節奏明快、又能討論現實議題的觀眾。", tags: ["驚悚", "種族", "類型片"] },
-      { rank: 9, title: "神隱少女", original: "Spirited Away", director: "宮崎駿", year: 2001, genre: "動畫", mood: "想被療癒", duration: 125, symbol: "湯", colors: ["#0f766e", "#203b29"], description: "小女孩進入神靈澡堂，在陌生世界學會工作、勇氣與告別。", why: "它既像童話，也像現代社會的寓言；每個角色都帶著清楚的生命力。", context: "適合所有年齡。重看時會比童年第一次看懂更多。", tags: ["動畫", "宮崎駿", "奇幻"] },
-      { rank: 10, title: "社群網戰", original: "The Social Network", director: "大衛芬奇", year: 2010, genre: "劇情", mood: "想看節奏", duration: 120, symbol: "#", colors: ["#123d6b", "#0c1020"], description: "Facebook 的創立故事被拍成野心、背叛與孤獨的現代寓言。", why: "對白快速、剪接俐落，讓商業與友情的破裂像法庭攻防一樣好看。", context: "適合對社群媒體、創業文化或芬奇式冷調敘事有興趣的人。", tags: ["科技", "創業", "芬奇"] },
-      { rank: 11, title: "瘋狂麥斯：憤怒道", original: "Mad Max: Fury Road", director: "喬治米勒", year: 2015, genre: "動作", mood: "想看爽片", duration: 120, symbol: "⚙", colors: ["#b94d1a", "#14243a"], description: "沙漠追逐幾乎從頭燃到尾，動作場面同時有速度、秩序與重量。", why: "它證明動作片也能靠視覺敘事和角色動機達到高度純粹的電影感。", context: "適合大螢幕和好音響，也適合想看一部完全不拖泥帶水的片。", tags: ["動作", "末日", "女力"] },
-      { rank: 12, title: "利益區域", original: "The Zone of Interest", director: "強納森葛雷澤", year: 2023, genre: "歷史", mood: "想被震撼", duration: 105, symbol: "□", colors: ["#d8d1bd", "#384036"], description: "集中營旁的日常家庭生活，用聲音揭露看似平靜的恐怖。", why: "它幾乎不直接展示暴力，卻讓觀眾無法逃離暴力的存在。", context: "需要專心觀看，也適合思考電影如何用聲音和空間承載歷史。", tags: ["歷史", "聲音", "戰爭"] },
-      { rank: 13, title: "人類之子", original: "Children of Men", director: "艾方索柯朗", year: 2006, genre: "科幻", mood: "想被震撼", duration: 109, symbol: "⟡", colors: ["#55615c", "#111a1d"], description: "人類失去生育能力後，一個孩子的可能性成為末世裡的希望。", why: "長鏡頭與世界觀細節非常驚人，讓科幻災難有近乎新聞現場的真實感。", context: "適合喜歡沉浸式世界建構與末日題材的人。", tags: ["末日", "長鏡頭", "科幻"] },
-      { rank: 14, title: "惡棍特工", original: "Inglourious Basterds", director: "昆汀塔倫提諾", year: 2009, genre: "黑色喜劇", mood: "想看節奏", duration: 153, symbol: "!", colors: ["#7b1f1f", "#241915"], description: "塔倫提諾用對白、懸念與改寫歷史的快感，拍出極具娛樂性的戰爭片。", why: "幾場長對話像拉緊的弓，語言本身就成為動作場面。", context: "適合喜歡角色互相試探、黑色幽默和戲劇張力的人。", tags: ["塔倫提諾", "戰爭", "對白"] },
-      { rank: 15, title: "無間道風雲", original: "The Departed", director: "馬丁史柯西斯", year: 2006, genre: "犯罪", mood: "想緊張", duration: 151, symbol: "◇", colors: ["#1f2937", "#7f1d1d"], description: "臥底與內鬼互相追查，身份焦慮在黑幫與警界之間爆裂。", why: "它把港片原型改造成美式犯罪史詩，演員群戲也十分過癮。", context: "適合想看明星陣容、犯罪攻防和高張力剪接的人。", tags: ["犯罪", "臥底", "群戲"] },
-      { rank: 16, title: "臥虎藏龍", original: "Crouching Tiger, Hidden Dragon", director: "李安", year: 2000, genre: "武俠", mood: "想被療癒", duration: 120, symbol: "竹", colors: ["#2f5f4f", "#111827"], description: "江湖、壓抑的愛與自由渴望在竹林與屋簷間流動。", why: "武打不只是動作，而是角色內心的延伸；東方美學與國際敘事取得漂亮平衡。", context: "適合想看優雅武俠、李安作品或華語電影國際代表作的人。", tags: ["武俠", "李安", "華語"] },
-      { rank: 17, title: "雲端情人", original: "Her", director: "史派克瓊斯", year: 2013, genre: "愛情科幻", mood: "想沉澱", duration: 126, symbol: "♡", colors: ["#d16a55", "#683d5a"], description: "一個孤獨男人愛上人工智慧作業系統，親密關係被重新定義。", why: "它溫柔地問：當陪伴變得更聰明，我們真正需要的是人，還是被理解的感覺？", context: "在 AI 更普及的現在重看，會比上映時更有時代感。", tags: ["AI", "孤獨", "愛情"] },
-      { rank: 18, title: "進擊的鼓手", original: "Whiplash", director: "達米恩查澤雷", year: 2014, genre: "劇情", mood: "想看表演", duration: 107, symbol: "♪", colors: ["#c08a1e", "#15100a"], description: "年輕鼓手與嚴苛老師互相逼到極限，追求卓越像一場暴力競賽。", why: "剪接、節奏和表演都像爵士鼓點一樣緊繃，結尾非常有爆發力。", context: "適合需要被喚醒、想看高能量表演的人。", tags: ["音樂", "師生", "野心"] },
-      { rank: 19, title: "星際效應", original: "Interstellar", director: "克里斯多福諾蘭", year: 2014, genre: "科幻", mood: "想被震撼", duration: 169, symbol: "○", colors: ["#172554", "#09090b"], description: "太空探索、時間相對論與親情被放在同一個宏大的敘事裡。", why: "它把硬科幻概念拍得有情感重量，視覺與音樂也很適合大螢幕。", context: "適合喜歡宇宙尺度、父女情感和諾蘭式結構的人。", tags: ["宇宙", "親情", "諾蘭"] },
-      { rank: 20, title: "年少時代", original: "Boyhood", director: "李察林克雷特", year: 2014, genre: "成長", mood: "想沉澱", duration: 165, symbol: "↗", colors: ["#8f5f37", "#335c67"], description: "用十二年拍一個男孩長大，時間不只是主題，也是電影的材料。", why: "它的動人不靠大事件，而是讓你看見生活如何在不知不覺中改變人。", context: "適合願意慢慢看、喜歡日常感和生命流動的人。", tags: ["時間", "家庭", "成長"] },
-      { rank: 21, title: "燃燒烈愛", original: "Burning", director: "李滄東", year: 2018, genre: "心理懸疑", mood: "想解謎", duration: 148, symbol: "煙", colors: ["#654321", "#1f2933"], description: "曖昧三角關係逐漸變成無法確認真相的懸疑。", why: "它把階級不安、慾望和空洞感拍得非常慢熱，後勁卻很強。", context: "適合喜歡開放式結局和文學感電影的人。", tags: ["村上春樹", "懸疑", "韓國"] },
-      { rank: 22, title: "歡迎來到布達佩斯大飯店", original: "The Grand Budapest Hotel", director: "魏斯安德森", year: 2014, genre: "喜劇", mood: "想被療癒", duration: 100, symbol: "◆", colors: ["#d36b87", "#6d4c7d"], description: "一間飯店、一位禮賓員和一場追逐，構成精緻又帶感傷的童話。", why: "畫面構圖、色彩和節奏高度統一，是魏斯安德森風格最成熟的代表之一。", context: "適合想看漂亮畫面、輕快節奏，但又希望有一點歷史感的人。", tags: ["美術", "喜劇", "魏斯安德森"] },
-      { rank: 23, title: "媽的多重宇宙", original: "Everything Everywhere All at Once", director: "關家永、丹尼爾舒奈特", year: 2022, genre: "奇幻動作", mood: "想看爽片", duration: 139, symbol: "∞", colors: ["#3b1f75", "#0f766e"], description: "一位母親穿梭多重宇宙，在荒謬打鬥中重新理解家庭與自我。", why: "它把混亂、喜劇、動作和親情熔成一部非常當代的家庭電影。", context: "適合想看創意爆炸、又不介意情緒突然打到心裡的人。", tags: ["多重宇宙", "家庭", "奧斯卡"] },
-      { rank: 24, title: "之前的我們", original: "Past Lives", director: "席琳宋", year: 2023, genre: "愛情", mood: "想哭一下", duration: 105, symbol: "線", colors: ["#4b5563", "#8d6e63"], description: "兩個童年朋友在不同人生階段重逢，思考緣分、選擇與錯過。", why: "它不把愛情簡化成選邊站，而是溫柔地承認人生裡有些可能性只能存在於想像中。", context: "適合安靜看，也適合看完後和朋友聊很久。", tags: ["緣分", "移民", "愛情"] }
+    const nytMovies = [
+      { rank: 1, title: "Parasite", original: "寄生上流 / 기생충", director: "Bong Joon Ho", year: 2019, genre: "Drama, Thriller" },
+      { rank: 2, title: "Mulholland Drive", original: "穆荷蘭大道", director: "David Lynch", year: 2001, genre: "Drama, Mystery, Thriller" },
+      { rank: 3, title: "There Will Be Blood", original: "黑金企業", director: "Paul Thomas Anderson", year: 2007, genre: "Drama" },
+      { rank: 4, title: "In the Mood for Love", original: "花樣年華", director: "Wong Kar-wai", year: 2000, genre: "Drama, Romance" },
+      { rank: 5, title: "Moonlight", original: "月光下的藍色男孩", director: "Barry Jenkins", year: 2016, genre: "Drama" },
+      { rank: 6, title: "No Country for Old Men", original: "險路勿近", director: "Joel Coen and Ethan Coen", year: 2007, genre: "Crime, Drama, Thriller" },
+      { rank: 7, title: "Eternal Sunshine of the Spotless Mind", original: "王牌冤家", director: "Michel Gondry", year: 2004, genre: "Drama, Romance, Sci-Fi" },
+      { rank: 8, title: "Get Out", original: "逃出絕命鎮", director: "Jordan Peele", year: 2017, genre: "Horror, Mystery, Thriller" },
+      { rank: 9, title: "Spirited Away", original: "神隱少女 / 千と千尋の神隠し", director: "Hayao Miyazaki", year: 2001, genre: "Animation, Adventure, Family" },
+      { rank: 10, title: "The Social Network", original: "社群網戰", director: "David Fincher", year: 2010, genre: "Biography, Drama" },
+      { rank: 11, title: "Mad Max: Fury Road", original: "瘋狂麥斯：憤怒道", director: "George Miller", year: 2015, genre: "Action, Adventure, Sci-Fi" },
+      { rank: 12, title: "The Zone of Interest", original: "夢想集中營", director: "Jonathan Glazer", year: 2023, genre: "Drama, History, War" },
+      { rank: 13, title: "Children of Men", original: "人類之子", director: "Alfonso Cuaron", year: 2006, genre: "Drama, Sci-Fi, Thriller" },
+      { rank: 14, title: "Inglourious Basterds", original: "惡棍特工", director: "Quentin Tarantino", year: 2009, genre: "Adventure, Drama, War" },
+      { rank: 15, title: "City of God", original: "無法無天 / Cidade de Deus", director: "Fernando Meirelles", year: 2002, genre: "Crime, Drama" },
+      { rank: 16, title: "Crouching Tiger, Hidden Dragon", original: "臥虎藏龍", director: "Ang Lee", year: 2000, genre: "Action, Adventure, Drama" },
+      { rank: 17, title: "Brokeback Mountain", original: "斷背山", director: "Ang Lee", year: 2005, genre: "Drama, Romance" },
+      { rank: 18, title: "Y tu mama tambien", original: "你他媽的也是 / Y tu mamá también", director: "Alfonso Cuaron", year: 2001, genre: "Drama" },
+      { rank: 19, title: "Zodiac", original: "索命黃道帶", director: "David Fincher", year: 2007, genre: "Crime, Drama, Mystery" },
+      { rank: 20, title: "The Wolf of Wall Street", original: "華爾街之狼", director: "Martin Scorsese", year: 2013, genre: "Biography, Comedy, Crime" },
+      { rank: 21, title: "The Royal Tenenbaums", original: "天才一族", director: "Wes Anderson", year: 2001, genre: "Comedy, Drama" },
+      { rank: 22, title: "The Grand Budapest Hotel", original: "歡迎來到布達佩斯大飯店", director: "Wes Anderson", year: 2014, genre: "Comedy, Drama" },
+      { rank: 23, title: "Boyhood", original: "年少時代", director: "Richard Linklater", year: 2014, genre: "Drama" },
+      { rank: 24, title: "Her", original: "雲端情人", director: "Spike Jonze", year: 2013, genre: "Drama, Romance, Sci-Fi" },
+      { rank: 25, title: "Phantom Thread", original: "霓裳魅影", director: "Paul Thomas Anderson", year: 2017, genre: "Drama, Romance" },
+      { rank: 26, title: "Anatomy of a Fall", original: "墜惡真相 / Anatomie d'une chute", director: "Justine Triet", year: 2023, genre: "Crime, Drama, Thriller" },
+      { rank: 27, title: "Adaptation.", original: "蘭花賊", director: "Spike Jonze", year: 2002, genre: "Comedy, Drama" },
+      { rank: 28, title: "The Dark Knight", original: "黑暗騎士", director: "Christopher Nolan", year: 2008, genre: "Action, Crime, Drama" },
+      { rank: 29, title: "Arrival", original: "異星入境", director: "Denis Villeneuve", year: 2016, genre: "Drama, Mystery, Sci-Fi" },
+      { rank: 30, title: "Lost in Translation", original: "愛情，不用翻譯", director: "Sofia Coppola", year: 2003, genre: "Comedy, Drama" },
+      { rank: 31, title: "The Departed", original: "神鬼無間", director: "Martin Scorsese", year: 2006, genre: "Crime, Drama, Thriller" },
+      { rank: 32, title: "Bridesmaids", original: "伴娘我最大", director: "Paul Feig", year: 2011, genre: "Comedy" },
+      { rank: 33, title: "A Separation", original: "分居風暴 / جدایی نادر از سیمین", director: "Asghar Farhadi", year: 2011, genre: "Drama" },
+      { rank: 34, title: "WALL-E", original: "瓦力", director: "Andrew Stanton", year: 2008, genre: "Animation, Adventure, Family" },
+      { rank: 35, title: "A Prophet", original: "大獄言家 / Un prophète", director: "Jacques Audiard", year: 2009, genre: "Crime, Drama" },
+      { rank: 36, title: "A Serious Man", original: "正經好人", director: "Joel Coen and Ethan Coen", year: 2009, genre: "Comedy, Drama" },
+      { rank: 37, title: "Call Me by Your Name", original: "以你的名字呼喚我", director: "Luca Guadagnino", year: 2017, genre: "Drama, Romance" },
+      { rank: 38, title: "Portrait of a Lady on Fire", original: "燃燒女子的畫像", director: "Celine Sciamma", year: 2019, genre: "Drama, Romance" },
+      { rank: 39, title: "Lady Bird", original: "淑女鳥", director: "Greta Gerwig", year: 2017, genre: "Comedy, Drama" },
+      { rank: 40, title: "Yi Yi", original: "一一", director: "Edward Yang", year: 2000, genre: "Drama, Romance" },
+      { rank: 41, title: "Amelie", original: "艾蜜莉的異想世界", director: "Jean-Pierre Jeunet", year: 2001, genre: "Comedy, Romance" },
+      { rank: 42, title: "The Master", original: "世紀教主", director: "Paul Thomas Anderson", year: 2012, genre: "Drama, History" },
+      { rank: 43, title: "Oldboy", original: "原罪犯 / 올드보이", director: "Park Chan-wook", year: 2003, genre: "Action, Drama, Mystery" },
+      { rank: 44, title: "Once Upon a Time... in Hollywood", original: "從前，有個好萊塢", director: "Quentin Tarantino", year: 2019, genre: "Comedy, Drama" },
+      { rank: 45, title: "Moneyball", original: "魔球", director: "Bennett Miller", year: 2011, genre: "Biography, Drama, Sport" },
+      { rank: 46, title: "Roma", original: "羅馬", director: "Alfonso Cuaron", year: 2018, genre: "Drama" },
+      { rank: 47, title: "Almost Famous", original: "成名在望", director: "Cameron Crowe", year: 2000, genre: "Adventure, Comedy, Drama" },
+      { rank: 48, title: "The Lives of Others", original: "竊聽風暴", director: "Florian Henckel von Donnersmarck", year: 2006, genre: "Drama, Mystery, Thriller" },
+      { rank: 49, title: "Before Sunset", original: "愛在日落巴黎時", director: "Richard Linklater", year: 2004, genre: "Drama, Romance" },
+      { rank: 50, title: "Up", original: "天外奇蹟", director: "Pete Docter", year: 2009, genre: "Animation, Adventure, Comedy" },
+      { rank: 51, title: "12 Years a Slave", original: "自由之心", director: "Steve McQueen", year: 2013, genre: "Biography, Drama, History" },
+      { rank: 52, title: "The Favourite", original: "真寵", director: "Yorgos Lanthimos", year: 2018, genre: "Biography, Comedy, Drama" },
+      { rank: 53, title: "Borat", original: "芭樂特", director: "Larry Charles", year: 2006, genre: "Comedy" },
+      { rank: 54, title: "Pan's Labyrinth", original: "羊男的迷宮 / El laberinto del fauno", director: "Guillermo del Toro", year: 2006, genre: "Drama, Fantasy, War" },
+      { rank: 55, title: "Inception", original: "全面啟動", director: "Christopher Nolan", year: 2010, genre: "Action, Adventure, Sci-Fi" },
+      { rank: 56, title: "Punch-Drunk Love", original: "戀愛雞尾酒", director: "Paul Thomas Anderson", year: 2002, genre: "Comedy, Drama, Romance" },
+      { rank: 57, title: "Best in Show", original: "狗狗大作戰", director: "Christopher Guest", year: 2000, genre: "Comedy" },
+      { rank: 58, title: "Uncut Gems", original: "原鑽", director: "Benny Safdie and Josh Safdie", year: 2019, genre: "Crime, Drama, Thriller" },
+      { rank: 59, title: "Toni Erdmann", original: "顛父人生", director: "Maren Ade", year: 2016, genre: "Comedy, Drama" },
+      { rank: 60, title: "Whiplash", original: "進擊的鼓手", director: "Damien Chazelle", year: 2014, genre: "Drama, Music" },
+      { rank: 61, title: "Kill Bill: Vol. 1", original: "追殺比爾：卷一", director: "Quentin Tarantino", year: 2003, genre: "Action, Crime, Thriller" },
+      { rank: 62, title: "Memento", original: "記憶拼圖", director: "Christopher Nolan", year: 2000, genre: "Mystery, Thriller" },
+      { rank: 63, title: "Little Miss Sunshine", original: "小太陽的願望", director: "Jonathan Dayton and Valerie Faris", year: 2006, genre: "Comedy, Drama" },
+      { rank: 64, title: "Gone Girl", original: "控制", director: "David Fincher", year: 2014, genre: "Drama, Mystery, Thriller" },
+      { rank: 65, title: "Oppenheimer", original: "奧本海默", director: "Christopher Nolan", year: 2023, genre: "Biography, Drama, History" },
+      { rank: 66, title: "Spotlight", original: "驚爆焦點", director: "Tom McCarthy", year: 2015, genre: "Biography, Crime, Drama" },
+      { rank: 67, title: "Tar", original: "TÁR塔爾", director: "Todd Field", year: 2022, genre: "Drama, Music" },
+      { rank: 68, title: "The Hurt Locker", original: "危機倒數", director: "Kathryn Bigelow", year: 2008, genre: "Drama, Thriller, War" },
+      { rank: 69, title: "Under the Skin", original: "肌膚之侵", director: "Jonathan Glazer", year: 2013, genre: "Drama, Horror, Mystery" },
+      { rank: 70, title: "Let the Right One In", original: "血色入侵 / Låt den rätte komma in", director: "Tomas Alfredson", year: 2008, genre: "Drama, Fantasy, Horror" },
+      { rank: 71, title: "Ocean's Eleven", original: "瞞天過海", director: "Steven Soderbergh", year: 2001, genre: "Crime, Thriller" },
+      { rank: 72, title: "Carol", original: "因為愛你", director: "Todd Haynes", year: 2015, genre: "Drama, Romance" },
+      { rank: 73, title: "Ratatouille", original: "料理鼠王", director: "Brad Bird", year: 2007, genre: "Animation, Adventure, Comedy" },
+      { rank: 74, title: "The Florida Project", original: "歡迎光臨奇幻城堡", director: "Sean Baker", year: 2017, genre: "Drama" },
+      { rank: 75, title: "Amour", original: "愛・慕", director: "Michael Haneke", year: 2012, genre: "Drama" },
+      { rank: 76, title: "O Brother, Where Art Thou?", original: "霹靂高手", director: "Joel Coen and Ethan Coen", year: 2000, genre: "Adventure, Comedy, Crime" },
+      { rank: 77, title: "Everything Everywhere All at Once", original: "媽的多重宇宙", director: "Daniel Kwan and Daniel Scheinert", year: 2022, genre: "Action, Adventure, Comedy" },
+      { rank: 78, title: "Aftersun", original: "日麗", director: "Charlotte Wells", year: 2022, genre: "Drama" },
+      { rank: 79, title: "The Tree of Life", original: "永生樹", director: "Terrence Malick", year: 2011, genre: "Drama, Fantasy" },
+      { rank: 80, title: "Volver", original: "玩美女人", director: "Pedro Almodovar", year: 2006, genre: "Comedy, Drama" },
+      { rank: 81, title: "Black Swan", original: "黑天鵝", director: "Darren Aronofsky", year: 2010, genre: "Drama, Thriller" },
+      { rank: 82, title: "The Act of Killing", original: "殺戮演繹 / Jagal", director: "Joshua Oppenheimer and Anonymous", year: 2012, genre: "Documentary, Biography, Crime" },
+      { rank: 83, title: "Inside Llewyn Davis", original: "醉鄉民謠", director: "Joel Coen and Ethan Coen", year: 2013, genre: "Drama, Music" },
+      { rank: 84, title: "Melancholia", original: "驚悚末日", director: "Lars von Trier", year: 2011, genre: "Drama, Sci-Fi" },
+      { rank: 85, title: "Anchorman: The Legend of Ron Burgundy", original: "銀幕大角頭", director: "Adam McKay", year: 2004, genre: "Comedy" },
+      { rank: 86, title: "Past Lives", original: "之前的我們", director: "Celine Song", year: 2023, genre: "Drama, Romance" },
+      { rank: 87, title: "The Lord of the Rings: The Fellowship of the Ring", original: "魔戒首部曲：魔戒現身", director: "Peter Jackson", year: 2001, genre: "Adventure, Drama, Fantasy" },
+      { rank: 88, title: "The Gleaners & I", original: "拾穗者與我 / Les Glaneurs et la Glaneuse", director: "Agnes Varda", year: 2000, genre: "Documentary" },
+      { rank: 89, title: "Interstellar", original: "星際效應", director: "Christopher Nolan", year: 2014, genre: "Adventure, Drama, Sci-Fi" },
+      { rank: 90, title: "Frances Ha", original: "紐約哈哈哈", director: "Noah Baumbach", year: 2012, genre: "Comedy, Drama, Romance" },
+      { rank: 91, title: "Fish Tank", original: "發現心節奏", director: "Andrea Arnold", year: 2009, genre: "Drama" },
+      { rank: 92, title: "Gladiator", original: "神鬼戰士", director: "Ridley Scott", year: 2000, genre: "Action, Adventure, Drama" },
+      { rank: 93, title: "Michael Clayton", original: "全面反擊", director: "Tony Gilroy", year: 2007, genre: "Crime, Drama, Mystery" },
+      { rank: 94, title: "Minority Report", original: "關鍵報告", director: "Steven Spielberg", year: 2002, genre: "Action, Crime, Mystery" },
+      { rank: 95, title: "The Worst Person in the World", original: "世界上最爛的人", director: "Joachim Trier", year: 2021, genre: "Comedy, Drama, Romance" },
+      { rank: 96, title: "Black Panther", original: "黑豹", director: "Ryan Coogler", year: 2018, genre: "Action, Adventure, Sci-Fi" },
+      { rank: 97, title: "Gravity", original: "地心引力", director: "Alfonso Cuaron", year: 2013, genre: "Drama, Sci-Fi, Thriller" },
+      { rank: 98, title: "Grizzly Man", original: "灰熊人", director: "Werner Herzog", year: 2005, genre: "Documentary, Biography" },
+      { rank: 99, title: "Memories of Murder", original: "殺人回憶 / 살인의 추억", director: "Bong Joon Ho", year: 2003, genre: "Crime, Drama, Mystery" },
+      { rank: 100, title: "Superbad", original: "男孩我最壞", director: "Greg Mottola", year: 2007, genre: "Comedy" }
     ];
+
+    const palettes = [
+      ["#0f3d2e", "#111111"], ["#20123f", "#07101f"], ["#6d3a12", "#15100c"], ["#8a1f2d", "#22110f"],
+      ["#123c69", "#081b2f"], ["#3f3428", "#0f0d0b"], ["#2b6f89", "#f0a64a"], ["#111111", "#6f1717"],
+      ["#0f766e", "#203b29"], ["#123d6b", "#0c1020"], ["#b94d1a", "#14243a"], ["#d8d1bd", "#384036"]
+    ];
+
+    const genreMood = [
+      [/Animation|Adventure|Family|Fantasy/, "想被療癒"],
+      [/Action|Sci-Fi|War/, "想看爽片"],
+      [/Crime|Mystery|Thriller|Horror/, "想緊張"],
+      [/Romance/, "想沉澱"],
+      [/Comedy/, "想看節奏"],
+      [/Documentary|Biography|History/, "想補影史"],
+      [/Drama/, "想沉澱"]
+    ];
+
+    const movies = nytMovies.map((movie, index) => {
+      const mood = (genreMood.find(([pattern]) => pattern.test(movie.genre)) || [null, "想沉澱"])[1];
+      const firstGenre = movie.genre.split(",")[0].trim();
+      return {
+        ...movie,
+        category: firstGenre,
+        mood,
+        duration: null,
+        symbol: movie.title.replace(/^The /, "").trim().charAt(0).toUpperCase(),
+        colors: palettes[index % palettes.length],
+        description: `《${movie.title}》是《紐約時報》21 世紀百大電影第 ${movie.rank} 名，由 ${movie.director} 執導，${movie.year} 年作品。榜單類型標記為 ${movie.genre}。`,
+        why: `適合用來補齊 21 世紀電影版圖中的「${firstGenre}」面向；如果你正在照 NYT 百大榜單補片，這一部是第 ${movie.rank} 站。`,
+        context: `本頁依 NYT 2025 年 6 月公布的百大電影排名整理，中文片名與摘要為導覽用途；正式排名以英文片名、導演與年份為主。`,
+        tags: movie.genre.split(",").map(tag => tag.trim())
+      };
+    });
 
     const moodInfo = {
       "想被震撼": ["fa-bolt", "高張力、強議題或大視野，適合想看完後被留下來的作品。"],
@@ -845,7 +954,7 @@
       return `
         <span class="chip"><i class="fa-solid fa-calendar"></i>${movie.year}</span>
         <span class="chip"><i class="fa-solid fa-user-pen"></i>${movie.director}</span>
-        <span class="chip"><i class="fa-solid fa-clock"></i>${movie.duration} 分</span>
+        <span class="chip"><i class="fa-solid fa-list-ol"></i>NYT #${movie.rank}</span>
         <span class="chip"><i class="fa-solid fa-ticket"></i>${movie.genre}</span>
       `;
     }
@@ -895,7 +1004,7 @@
     }
 
     function renderFilters() {
-      const genres = ["全部類型", ...new Set(movies.map(movie => movie.genre))];
+      const genres = ["全部類型", ...new Set(movies.map(movie => movie.category))];
       const moods = ["全部心情", ...new Set(movies.map(movie => movie.mood))];
       genreFilter.innerHTML = genres.map(item => `<option value="${item}">${item}</option>`).join("");
       moodFilter.innerHTML = moods.map(item => `<option value="${item}">${item}</option>`).join("");
@@ -908,13 +1017,13 @@
       let list = movies.filter(movie => {
         const haystack = [movie.title, movie.original, movie.director, movie.year, movie.genre, movie.mood, movie.tags.join(" ")].join(" ").toLowerCase();
         return (!keyword || haystack.includes(keyword)) &&
-          (genre === "全部類型" || movie.genre === genre) &&
+          (genre === "全部類型" || movie.category === genre) &&
           (mood === "全部心情" || movie.mood === mood);
       });
 
       if (sortSelect.value === "yearDesc") list = list.sort((a, b) => b.year - a.year);
       if (sortSelect.value === "yearAsc") list = list.sort((a, b) => a.year - b.year);
-      if (sortSelect.value === "duration") list = list.sort((a, b) => a.duration - b.duration);
+      if (sortSelect.value === "director") list = list.sort((a, b) => a.director.localeCompare(b.director));
       if (sortSelect.value === "rank") list = list.sort((a, b) => a.rank - b.rank);
       return list;
     }
@@ -927,7 +1036,7 @@
     }
 
     function renderHeroPosters() {
-      const columns = [movies.slice(0, 7), movies.slice(7, 15), movies.slice(15, 24)];
+      const columns = [movies.slice(0, 34), movies.slice(34, 67), movies.slice(67, 100)];
       document.querySelector("#heroPosters").innerHTML = columns.map(column => `
         <div class="film-strip">
           ${column.concat(column.slice(0, 3)).map(movie => `
