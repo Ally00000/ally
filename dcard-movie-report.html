@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Dcard 電影版最新 30 篇貼文與公開可見留言片段分析，整理熱門片名、情緒傾向與近期電影討論焦點。" />
+  <title>Dcard 電影版最新 30 篇分析 | NYT 21 世紀百大電影</title>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-J5DM35NHLQ"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-J5DM35NHLQ");
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+  <style>
+    :root {
+      --bg: #f7f3ea;
+      --paper: rgba(255, 250, 240, 0.86);
+      --ink: #171411;
+      --muted: #6d655a;
+      --line: #daccb8;
+      --brick: #a0442f;
+      --gold: #b88631;
+      --teal: #1f6f78;
+      --plum: #5b426d;
+      --green: #4f6f52;
+      --shadow: 0 18px 50px rgba(40, 28, 13, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Noto Sans TC", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(23, 20, 17, 0.035) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(23, 20, 17, 0.025) 1px, transparent 1px),
+        var(--bg);
+      background-size: 44px 44px;
+    }
+
+    a { color: inherit; }
+
+    .wrap {
+      width: min(1180px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 22px 0 44px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .brand,
+    .ghost-link {
+      min-height: 42px;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      text-decoration: none;
+      border: 1px solid rgba(23, 20, 17, 0.12);
+      border-radius: 8px;
+      background: rgba(255, 250, 240, 0.78);
+      font-weight: 800;
+    }
+
+    .brand-mark {
+      width: 28px;
+      height: 28px;
+      display: grid;
+      place-items: center;
+      border-radius: 8px;
+      color: #fff;
+      background: conic-gradient(from 120deg, var(--brick), var(--gold), var(--teal), var(--brick));
+    }
+
+    .hero,
+    .panel,
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
+      gap: 18px;
+      overflow: hidden;
+    }
+
+    .hero-copy,
+    .hero-side,
+    .section,
+    .card {
+      padding: 24px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--brick);
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      line-height: 1.08;
+      font-family: "Noto Serif TC", serif;
+    }
+
+    h1 {
+      font-size: clamp(40px, 7vw, 76px);
+      margin: 16px 0 18px;
+    }
+
+    h2 {
+      font-size: clamp(28px, 4vw, 42px);
+      margin-bottom: 16px;
+    }
+
+    h3 {
+      font-size: 22px;
+      margin-bottom: 12px;
+    }
+
+    .lead,
+    .section p,
+    .hero-side p,
+    .footer,
+    .list-meta,
+    .quote-body,
+    .label-note {
+      color: #50473d;
+      line-height: 1.8;
+    }
+
+    .hero-side {
+      background:
+        radial-gradient(circle at top right, rgba(160,68,47,0.15), transparent 34%),
+        radial-gradient(circle at bottom left, rgba(31,111,120,0.14), transparent 28%),
+        var(--paper);
+    }
+
+    .big-number {
+      font-size: 72px;
+      line-height: 1;
+      font-weight: 900;
+      font-family: "Noto Serif TC", serif;
+      margin: 10px 0 8px;
+    }
+
+    .hero-actions,
+    .tag-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .btn,
+    .tag {
+      min-height: 40px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(23, 20, 17, 0.12);
+      text-decoration: none;
+      font-weight: 800;
+    }
+
+    .btn.primary {
+      background: var(--ink);
+      border-color: var(--ink);
+      color: #fffaf0;
+    }
+
+    .tag {
+      min-height: 32px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.45);
+      color: #4e463d;
+      font-size: 13px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .card-label {
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .card-value {
+      margin-top: 10px;
+      font-size: 42px;
+      line-height: 1;
+      font-weight: 900;
+      font-family: "Noto Serif TC", serif;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.06fr) minmax(280px, 0.94fr);
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .bars,
+    .quotes,
+    .insight-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .bar-row {
+      display: grid;
+      grid-template-columns: 146px 1fr 52px;
+      gap: 12px;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .bar-track {
+      width: 100%;
+      height: 14px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(23, 20, 17, 0.08);
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--brick), var(--gold));
+    }
+
+    .list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .list-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: start;
+      padding-top: 12px;
+      border-top: 1px solid rgba(23, 20, 17, 0.1);
+    }
+
+    .list-item:first-child,
+    .quote:first-child {
+      padding-top: 0;
+      border-top: 0;
+    }
+
+    .list-name {
+      font-weight: 800;
+      line-height: 1.55;
+    }
+
+    .list-meta {
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .list-num {
+      font-size: 28px;
+      line-height: 1;
+      font-weight: 900;
+      font-family: "Noto Serif TC", serif;
+      white-space: nowrap;
+    }
+
+    .note {
+      margin-top: 18px;
+      padding: 18px;
+      border-left: 4px solid var(--brick);
+      background: rgba(160, 68, 47, 0.08);
+      color: #4d453b;
+      line-height: 1.8;
+    }
+
+    .quote {
+      padding-top: 14px;
+      border-top: 1px solid rgba(23, 20, 17, 0.1);
+    }
+
+    .quote-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .quote-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.55);
+      border: 1px solid rgba(23, 20, 17, 0.08);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .quote-body {
+      margin: 0;
+      font-size: 15px;
+    }
+
+    .keyword-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .keyword-card {
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid rgba(23, 20, 17, 0.08);
+      background: rgba(255,255,255,0.42);
+    }
+
+    .keyword-card strong {
+      display: block;
+      font-size: 18px;
+      margin-bottom: 6px;
+      font-family: "Noto Serif TC", serif;
+    }
+
+    .sources {
+      margin-top: 18px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .source-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #3f382f;
+      font-weight: 700;
+    }
+
+    .footer {
+      margin-top: 18px;
+      text-align: center;
+      font-size: 13px;
+    }
+
+    @media (max-width: 980px) {
+      .hero,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .keyword-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 640px) {
+      .topbar {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .bar-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <div class="topbar">
+      <a class="brand" href="index.html">
+        <span class="brand-mark"><i class="fa-solid fa-film"></i></span>
+        <span>返回 NYT 21 世紀百大電影</span>
+      </a>
+      <a class="ghost-link" href="ptt-movie-report.html">
+        <i class="fa-solid fa-chart-simple"></i>
+        <span>查看 PTT 分析頁</span>
+      </a>
+    </div>
+
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="eyebrow"><i class="fa-solid fa-comments"></i> Dcard Movie Watch</div>
+        <h1>Dcard 電影版<br>最新 30 篇分析</h1>
+        <p class="lead">這頁把 Dcard 電影版最新 30 篇貼文與公開可見留言片段整理成一張可快速掃描的資訊圖表，重點放在最近大家愛看什麼、在吵什麼、哪些片最容易引起推薦與情緒反應。</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#charts"><i class="fa-solid fa-arrow-down"></i> 往下看圖表</a>
+          <a class="btn" href="#sources"><i class="fa-solid fa-link"></i> 看資料來源</a>
+        </div>
+      </div>
+      <div class="hero-side">
+        <div>
+          <div class="eyebrow"><i class="fa-solid fa-signal"></i> Primary Signal</div>
+          <div class="big-number">17</div>
+          <p>在最新 30 篇貼文裡，正向語氣與推薦導向的內容最多，代表近期討論氛圍不是單純吐槽，而是大量交換片單、觀後感與串流平台選片建議。</p>
+        </div>
+        <div class="note">
+          這份整理很適合拿來補足首頁的榜單視角。NYT 百大偏向經典與作者觀點，Dcard 這頁則更接近「現在一般觀眾此刻在聊什麼」。兩者放在一起，網站內容會更立體。
+        </div>
+      </div>
+    </section>
+
+    <section class="grid" id="charts">
+      <article class="card">
+        <div class="card-label">最新貼文</div>
+        <div class="card-value">30</div>
+        <p class="lead">抓取 Dcard 電影版最新一批公開貼文，觀察近期實際討論熱點。</p>
+      </article>
+      <article class="card">
+        <div class="card-label">可見留言片段</div>
+        <div class="card-value">46</div>
+        <p class="lead">彙整頁面上可直接讀到的留言內容，用來補強貼文下方的即時回饋。</p>
+      </article>
+      <article class="card">
+        <div class="card-label">正向貼文</div>
+        <div class="card-value">17</div>
+        <p class="lead">推薦、感動、分享觀後感的內容，明顯多於批評或失望類型。</p>
+      </article>
+      <article class="card">
+        <div class="card-label">負向貼文</div>
+        <div class="card-value">6</div>
+        <p class="lead">負評集中在續作疲乏、字幕問題、期待落差與不推特定作品。</p>
+      </article>
+    </section>
+
+    <section class="layout">
+      <article class="panel section">
+        <h2>貼文情緒分布</h2>
+        <div class="bars">
+          <div class="bar-row">
+            <div>正向推薦</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 100%"></div></div>
+            <div class="list-num">17</div>
+          </div>
+          <div class="bar-row">
+            <div>混合討論</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 41%; background: linear-gradient(90deg, var(--teal), #54a4ae);"></div></div>
+            <div class="list-num">7</div>
+          </div>
+          <div class="bar-row">
+            <div>負向吐槽</div>
+            <div class="bar-track"><div class="bar-fill" style="width: 35%; background: linear-gradient(90deg, var(--plum), #8c6aa7);"></div></div>
+            <div class="list-num">6</div>
+          </div>
+        </div>
+        <div class="note">
+          最新討論整體偏正向，尤其是「最近有什麼好看」、「這部值得看嗎」、「串流上想找片」這種實用型分享最常出現。這表示使用者來 Dcard 電影版，不只是發表意見，也在互相交換觀看建議。
+        </div>
+      </article>
+
+      <article class="panel section">
+        <h2>近期高聲量關鍵字</h2>
+        <div class="keyword-grid">
+          <div class="keyword-card">
+            <strong>後室</strong>
+            <div class="label-note">字幕與體驗細節都有人討論，屬於話題集中型作品。</div>
+          </div>
+          <div class="keyword-card">
+            <strong>Joker / 小丑</strong>
+            <div class="label-note">情緒分歧明顯，集中在續作必要性與角色詮釋。</div>
+          </div>
+          <div class="keyword-card">
+            <strong>Netflix</strong>
+            <div class="label-note">平台選片需求很強，觀眾常直接問「最近串流看什麼」。</div>
+          </div>
+          <div class="keyword-card">
+            <strong>觀後感 / 推薦</strong>
+            <div class="label-note">多數貼文不是新聞轉貼，而是個人觀影後的情緒分享。</div>
+          </div>
+          <div class="keyword-card">
+            <strong>驚聲尖笑</strong>
+            <div class="label-note">懷舊與娛樂性討論突出，留言傾向輕鬆正向。</div>
+          </div>
+          <div class="keyword-card">
+            <strong>屍速禁區</strong>
+            <div class="label-note">在推薦型對話裡反覆被提起，屬於好入口片單。</div>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="layout">
+      <article class="panel section">
+        <h2>最近大家在聊什麼</h2>
+        <div class="list">
+          <div class="list-item">
+            <div>
+              <div class="list-name">1. 實用型選片需求很高</div>
+              <div class="list-meta">「有沒有推薦」、「串流上看什麼」、「最近好片」這類問題持續出現。</div>
+            </div>
+            <div class="list-num">01</div>
+          </div>
+          <div class="list-item">
+            <div>
+              <div class="list-name">2. 觀後感比新聞消息更容易帶起回覆</div>
+              <div class="list-meta">主觀感受、哭點、驚嚇感與是否值得進戲院，比純資訊更容易引發互動。</div>
+            </div>
+            <div class="list-num">02</div>
+          </div>
+          <div class="list-item">
+            <div>
+              <div class="list-name">3. 續作與經典翻拍最容易出現分歧</div>
+              <div class="list-meta">像 Joker 這類有前作包袱的作品，最容易出現支持與失望並存的情況。</div>
+            </div>
+            <div class="list-num">03</div>
+          </div>
+          <div class="list-item">
+            <div>
+              <div class="list-name">4. 懷舊娛樂片依然有穩定好感</div>
+              <div class="list-meta">喜劇、經典惡搞、類型片回顧會引出輕鬆正向的留言氛圍。</div>
+            </div>
+            <div class="list-num">04</div>
+          </div>
+        </div>
+      </article>
+
+      <article class="panel section">
+        <h2>代表性留言片段</h2>
+        <div class="quotes">
+          <div class="quote">
+            <div class="quote-head">
+              <span class="quote-tag"><i class="fa-solid fa-quote-left"></i> 後室</span>
+              <span class="list-meta">字幕體驗</span>
+            </div>
+            <p class="quote-body">之前就很像看到有人提，字幕連電話號碼照著也打錯。</p>
+          </div>
+          <div class="quote">
+            <div class="quote-head">
+              <span class="quote-tag"><i class="fa-solid fa-quote-left"></i> Joker</span>
+              <span class="list-meta">兩極評價</span>
+            </div>
+            <p class="quote-body">第一集本身就很完整了，硬要拍續集真的不懂。</p>
+          </div>
+          <div class="quote">
+            <div class="quote-head">
+              <span class="quote-tag"><i class="fa-solid fa-quote-left"></i> 推薦片單</span>
+              <span class="list-meta">選片需求</span>
+            </div>
+            <p class="quote-body">屍速禁區或驚聲尖笑吧。</p>
+          </div>
+          <div class="quote">
+            <div class="quote-head">
+              <span class="quote-tag"><i class="fa-solid fa-quote-left"></i> 妳最後留下的歌</span>
+              <span class="list-meta">正向共鳴</span>
+            </div>
+            <p class="quote-body">感動，推薦，人生如戲，好喜歡。</p>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <section class="layout">
+      <article class="panel section">
+        <h2>如何解讀這份圖表</h2>
+        <div class="insight-list">
+          <p>如果你想把網站做成「榜單 + 當代討論 + 數據閱讀」的組合，這頁很有用。它不是在重做首頁，而是在首頁之外補上一個即時觀眾視角。</p>
+          <p>首頁可以繼續主打《紐約時報》21 世紀百大電影的權威感；Dcard 分頁則扮演「現在台灣網友最近在看什麼」的觀測站，增加網站的更新感與社群溫度。</p>
+          <p>未來你如果要再延伸，也很適合把 PTT、Dcard、GA4 三頁做成一組「觀眾脈動」分頁群。</p>
+        </div>
+      </article>
+
+      <article class="panel section" id="sources">
+        <h2>資料來源與限制</h2>
+        <div class="sources">
+          <a class="source-link" href="https://www.dcard.tw/f/movie?tab=latest" target="_blank" rel="noopener noreferrer">
+            <i class="fa-solid fa-up-right-from-square"></i>
+            <span>Dcard 電影版最新貼文頁</span>
+          </a>
+        </div>
+        <div class="note">
+          本頁資料來自公開可見內容，留言部分以頁面當下可直接讀取的片段為主，未登入牆後的完整留言串不在這次整理範圍內。因此這份分析比較像「公開討論風向觀測」，不是完整社群資料庫。
+        </div>
+      </article>
+    </section>
+
+    <p class="footer">Updated for ally-kappa.vercel.app with Firecrawl-based Dcard movie board snapshot.</p>
+  </main>
+</body>
+</html>
