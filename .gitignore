@@ -1,0 +1,8 @@
+.npm-cache/
+.tmp/
+node_modules/
+*-preview.png
+index-preview.png
+index-ptt-section.png
+ptt-report-preview.png
+client_secret_*.json

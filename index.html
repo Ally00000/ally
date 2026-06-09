@@ -603,6 +603,57 @@
       margin: 10px 0 12px;
     }
 
+    .insight-preview {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(280px, 0.98fr);
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .insight-copy {
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .mini-bars {
+      display: grid;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .mini-bar-row {
+      display: grid;
+      grid-template-columns: 112px 1fr 42px;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+      color: #51483d;
+    }
+
+    .mini-bar-track {
+      width: 100%;
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: rgba(23,20,17,.08);
+    }
+
+    .mini-bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--brick), var(--gold));
+    }
+
+    .insight-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
     .analytics-stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -703,7 +754,7 @@
     }
 
     @media (max-width: 960px) {
-      .hero, .spotlight, .video-layout, .analytics-teaser, .modal-card { grid-template-columns: 1fr; }
+      .hero, .spotlight, .video-layout, .analytics-teaser, .insight-preview, .modal-card { grid-template-columns: 1fr; }
       .hero { padding-top: 36px; }
       .hero-board { min-height: 520px; }
       .feature-card { grid-template-columns: 180px 1fr; }
@@ -723,6 +774,7 @@
       .marquee { grid-template-columns: repeat(2, 1fr); }
       .film-strip:nth-child(3) { display: none; }
       .stats, .movie-grid, .collections, .timeline, .feature-card, .analytics-stats { grid-template-columns: 1fr; }
+      .mini-bar-row { grid-template-columns: 1fr; }
       .section-head { display: block; }
       .section-head p { margin-top: 10px; }
       .toolbar { top: 55px; }
@@ -740,6 +792,7 @@
         <span>NYT 21 世紀百大電影</span>
       </a>
       <div class="nav-links">
+        <a href="ptt-movie-report.html">PTT 分析</a>
         <a href="#featured">精選</a>
         <a href="#library">片單</a>
         <a href="#moods">情緒推薦</a>
@@ -856,6 +909,71 @@
             </div>
           </div>
           <p>目前首頁是主要流量入口，來源以 `vercel.com / referral` 為主。等影片事件開始進資料後，這頁會更有參考價值。</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="ptt-insight-preview" class="shell">
+      <div class="insight-preview">
+        <div class="panel insight-copy">
+          <div>
+            <span class="eyebrow"><i class="fa-solid fa-chart-simple"></i> PTT Watch</span>
+            <h3>把 PTT 電影板前三頁做成一頁看得懂的話題地圖</h3>
+            <p>我把 `PTT movie` 板目前可見前 3 頁的文章標題整理成視覺化分頁，濃縮出內容類型比例、重複出現的熱門片名、近期討論關鍵字，適合快速判斷現在大家在聊什麼。</p>
+            <div class="insight-tags" aria-label="PTT 熱門關鍵字">
+              <span class="chip"><i class="fa-solid fa-fire"></i> Prada 惡魔 2</span>
+              <span class="chip"><i class="fa-solid fa-film"></i> 奧德賽</span>
+              <span class="chip"><i class="fa-solid fa-clapperboard"></i> 沙丘 2</span>
+              <span class="chip"><i class="fa-solid fa-bolt"></i> 曼達洛人與古古</span>
+              <span class="chip"><i class="fa-solid fa-skull"></i> 屍速禁區</span>
+            </div>
+          </div>
+          <div class="card-actions">
+            <a class="btn primary" href="ptt-movie-report.html">
+              <i class="fa-solid fa-arrow-up-right-from-square"></i> 打開 PTT 分析頁
+            </a>
+          </div>
+        </div>
+        <div class="panel insight-copy">
+          <div>
+            <span class="eyebrow"><i class="fa-solid fa-layer-group"></i> Snapshot</span>
+            <div class="analytics-stats">
+              <div class="analytics-stat">
+                <strong>3</strong>
+                <span>已整理頁數</span>
+              </div>
+              <div class="analytics-stat">
+                <strong>40+</strong>
+                <span>可見文章標題</span>
+              </div>
+              <div class="analytics-stat">
+                <strong>5</strong>
+                <span>高頻作品話題</span>
+              </div>
+              <div class="analytics-stat">
+                <strong>4</strong>
+                <span>主要內容類型</span>
+              </div>
+            </div>
+            <div class="mini-bars" aria-label="內容類型比例">
+              <div class="mini-bar-row">
+                <span>新聞情報</span>
+                <div class="mini-bar-track"><div class="mini-bar-fill" style="width: 92%"></div></div>
+                <strong>最多</strong>
+              </div>
+              <div class="mini-bar-row">
+                <span>心得評價</span>
+                <div class="mini-bar-track"><div class="mini-bar-fill" style="width: 74%; background: linear-gradient(90deg, var(--teal), #54a4ae);"></div></div>
+                <strong>次多</strong>
+              </div>
+              <div class="mini-bar-row">
+                <span>討論回文</span>
+                <div class="mini-bar-track"><div class="mini-bar-fill" style="width: 46%; background: linear-gradient(90deg, var(--plum), #8d6aa8);"></div></div>
+                <strong>聚焦</strong>
+              </div>
+            </div>
+          </div>
+          <p>這頁不是原始逐篇爬文，而是用標題層級快速抓趨勢，所以很適合當「今天 movie 板在熱什麼」的總覽入口。</p>
         </div>
       </div>
     </section>
